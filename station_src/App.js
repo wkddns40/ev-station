@@ -17,9 +17,9 @@ import ButtonGroup from './ButtonGroup';
 // import { useReducer } from 'react';
 
 
-MapboxGL.accessToken = '***MAPBOX_TOKEN_REMOVED***';
+MapboxGL.accessToken = '';
 
-const DATA_URL = 'http://v2cloud.iptime.org:5000/charger';
+const DATA_URL = 'http://:5000/charger';
 
 const INITIAL_VIEW_STATE = {
   longitude: 127.7,
