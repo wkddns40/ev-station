@@ -17,9 +17,9 @@ import ButtonGroup from './ButtonGroup';
 // import { useReducer } from 'react';
 
 
-MapboxGL.accessToken = '***MAPBOX_TOKEN_REMOVED***';
+MapboxGL.accessToken = '';
 
-const DATA_URL = 'http://v2cloud.iptime.org:5000/charger';
+const DATA_URL = '';
 
 const INITIAL_VIEW_STATE = {
   longitude: 127.7,
@@ -190,31 +190,6 @@ export default function ScatterplotMap() {
     };
   }, []);
 
-  const toggleMapStyle = () => {
-    if (mapStyle === 'mapbox://styles/djangbogo/cli8sh8dd010d01po64z6hkyl') {
-      setMapStyle('mapbox://styles/djangbogo/clguo7jun002c01r8eny34b5q');
-      setTheme('dark');
-      setColor('cyan');
-    } else {
-      setMapStyle('mapbox://styles/djangbogo/cli8sh8dd010d01po64z6hkyl');
-      setTheme('light');
-      setColor('#212163');
-    }
-  }
-
-  const updateTheme = () => {
-    const currentHour = new Date().getHours();
-    // if (currentHour >= 6 && currentHour < 18) {
-      if (currentHour > 0) {
-      setMapStyle('mapbox://styles/djangbogo/cli8sh8dd010d01po64z6hkyl');
-      setTheme('light');
-      setColor('#212163');
-    } else {
-      setMapStyle('mapbox://styles/djangbogo/clguo7jun002c01r8eny34b5q');
-      setTheme('dark');
-      setColor('cyan');
-    }
-  }
 
   const objectToCSVRow = (dataObject) => {
     let dataArray = [];
