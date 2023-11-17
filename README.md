@@ -12,4 +12,4 @@ EV-STATION
 ---
 기술 스택  
 ---
-![evstack](https://github.com/wkddns40/ev-station/assets/30453120/44e41855-fbb9-4f59-ad95-a54130d71572)
+![ev_stack](https://github.com/wkddns40/ev-station/assets/30453120/ffa467db-e5b6-45cd-8838-5e7e5d724ed6)
