@@ -8,7 +8,8 @@ EV-STATION
 * 동적 상태 관리를 통해 컴포넌트에서 바뀌는 값 관리
 * 시간에 따른 데이터 변화를 고려한 수정 및 확장에 용이한 구조로 구현
 * 충전기의 전압/전력과 같은 개별 데이터들은 별도의 RDB로 만들고, 파이썬으로 REST API를 구현 
-  
+
+    
 기술 스택  
 
 ![evstack](https://github.com/wkddns40/ev-station/assets/30453120/44e41855-fbb9-4f59-ad95-a54130d71572)
