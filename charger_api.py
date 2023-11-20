@@ -16,9 +16,9 @@ def get_db_connection():
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user="v2cloud",
-            password="skehahffk!@#",
-            database="v2cloud"
+            user="",
+            password="",
+            database=""
         )
         logging.debug('Connected to the database')
         return connection
