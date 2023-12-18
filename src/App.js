@@ -14,7 +14,7 @@ import LeftPane from './LeftPane';
 import SearchFilterPane from './SearchFilterPane';
 import Tooltip from './ToolTip';
 import ButtonGroup from './ButtonGroup';
-// import { useReducer } from 'react';
+import { useReducer } from 'react';
 
 MapboxGL.accessToken = '';
 
