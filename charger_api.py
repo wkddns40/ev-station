@@ -1,11 +1,12 @@
-import json
 from flask import Flask, jsonify, make_response
-import mysql.connector
 from flask_caching import Cache
-import logging
+import mysql.connector
+# import logging
+import json
 from collections import OrderedDict
 from flask_cors import CORS
-logging.basicConfig(level=logging.DEBUG)
+
+# logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 CORS(app)
@@ -20,18 +21,18 @@ def get_db_connection():
             password="",
             database=""
         )
-        logging.debug('Connected to the database')
+        # logging.debug('Connected to the database')
         return connection
     except Exception as e:
-        logging.error('Error connecting to the database:', exc_info=True)
+        # logging.error('Error connecting to the database:', exc_info=True)
         raise
 
 def fetch_data():
     try:
         connection = get_db_connection()
-        logging.debug('Connected to the database')
+        # logging.debug('Connected to the database')
     except Exception as e:
-        logging.error('Error connecting to the database:', exc_info=True)
+        # logging.error('Error connecting to the database:', exc_info=True)
         raise
 
     cursor = connection.cursor(dictionary=True)
