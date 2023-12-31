@@ -1,4 +1,4 @@
-//publishing page 받아서 export
+//publishing page export
 import React from 'react';
 import SlidingPane from 'react-sliding-pane';
 import PublishingPage from './PublishingPage';
