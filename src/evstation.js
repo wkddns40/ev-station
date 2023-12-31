@@ -7,7 +7,7 @@ import { ColumnLayer, IconLayer, PathLayer } from '@deck.gl/layers';
 // import { ScatterplotLayer } from '@deck.gl/layers';
 import 'react-sliding-pane/dist/react-sliding-pane.css';
 import { LinearInterpolator } from '@deck.gl/core';
-import './App.css';
+import './evstation.css';
 import searchTerms from './searchTerms';
 import RightPane from './RightPane';
 import LeftPane from './LeftPane';
@@ -157,7 +157,7 @@ export default function Map() {
       data: [lastDataPoint],
       pickable: true,
       iconAtlas: 'http://127.0.0.1:5500/public/car.png', 
-      iconMapping: {
+      iconMevstationing: {
         marker: {x: 10, y: 150, width: 512, height: 512, mask: false}
       },
       getIcon: d => 'marker',
