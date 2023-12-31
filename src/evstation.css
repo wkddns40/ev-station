@@ -1,4 +1,4 @@
-.App {
+.evstation {
   text-align: center;
 }
 .black-background {
@@ -358,7 +358,7 @@
 }
 
 
-.App-header {
+.evstation-header {
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
@@ -369,7 +369,7 @@
   color: black;
 }
 
-.App-link {
+.evstation-link {
   color: #61dafb;
 }
 .statistics {
