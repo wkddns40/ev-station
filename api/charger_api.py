@@ -8,8 +8,8 @@ from flask_cors import CORS
 
 logging.basicConfig(level=logging.DEBUG)
 
-# app = Flask(__name__)
-# CORS(app)
+app = Flask(__name__)
+CORS(app)
 app.config['JSON_AS_ASCII'] = False
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache'})
 
