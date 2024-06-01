@@ -1,4 +1,4 @@
-EV-STATION  
+  EV-STATION  
 --- 
 최근 전기차 보급의 확대로 전기차 배터리 충전소의 충전기에 대한 정보의 수요가 증가하고 있다는 점을 고려하여 배터리 충전소의 충전기 정보 제공 서비스 개발 프로젝트
 
@@ -13,6 +13,6 @@ EV-STATION
 기술 스택  
 ---
 ![ev_stack](https://github.com/wkddns40/ev-station/assets/30453120/ffa467db-e5b6-45cd-8838-5e7e5d724ed6)
-![ev_charger_Night1](https://github.com/wkddns40/ev-station/assets/30453120/77656883-0e0d-4eb4-b113-7f10679629ec)
+![ev_charger_Night1](<img src="https://github.com/wkddns40/ev-station/assets/30453120/77656883-0e0d-4eb4-b113-7f10679629ec" width="700" height="370">)
 ![ev_charger_Night2](https://github.com/wkddns40/ev-station/assets/30453120/06561922-60cd-4b3f-af66-759bcb21c8d4)
 ![ev_charger_Night3](https://github.com/wkddns40/ev-station/assets/30453120/b69b1b2e-565e-4f61-ab0c-08c75209f264)
