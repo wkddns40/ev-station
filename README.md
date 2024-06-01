@@ -12,7 +12,7 @@
 ---
 기술 스택  
 ---
-<img src="https://github.com/wkddns40/ev-station/assets/30453120/ffa467db-e5b6-45cd-8838-5e7e5d724ed6">
+![기술스택](https://github.com/wkddns40/ev-station/assets/30453120/ffa467db-e5b6-45cd-8838-5e7e5d724ed6)
 ---
 EV-STATION_NIGHT  
 ---
