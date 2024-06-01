@@ -13,6 +13,6 @@
 기술 스택  
 ---
 ![ev_stack](https://github.com/wkddns40/ev-station/assets/30453120/ffa467db-e5b6-45cd-8838-5e7e5d724ed6)
-<img src="https://github.com/wkddns40/ev-station/assets/30453120/77656883-0e0d-4eb4-b113-7f10679629ec" width="1000" height="600">
+<img src="https://github.com/wkddns40/ev-station/assets/30453120/77656883-0e0d-4eb4-b113-7f10679629ec" width="900" height="450">
 ![ev_charger_Night2](https://github.com/wkddns40/ev-station/assets/30453120/06561922-60cd-4b3f-af66-759bcb21c8d4)
 ![ev_charger_Night3](https://github.com/wkddns40/ev-station/assets/30453120/b69b1b2e-565e-4f61-ab0c-08c75209f264)
