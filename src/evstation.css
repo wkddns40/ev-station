@@ -277,7 +277,6 @@
   -webkit-line-clamp: 1; 
   max-width: 36ch;
 }
-
 .sort {
   position: absolute;
   background-color: transparent;
@@ -349,8 +348,6 @@
 .right-pane {
   background-color:slategray;
 }
-
-
 .evstation-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -361,7 +358,6 @@
   font-size: calc(10px + 2vmin);
   color: black;
 }
-
 .evstation-link {
   color: #61dafb;
 }
