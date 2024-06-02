@@ -14,7 +14,7 @@
 ---
 ![기술스택](https://github.com/wkddns40/ev-station/assets/30453120/ffa467db-e5b6-45cd-8838-5e7e5d724ed6)
 
-EV-STATION_NIGHT  
+화면 구성  
 ---
 <img src="https://github.com/wkddns40/ev-station/assets/30453120/77656883-0e0d-4eb4-b113-7f10679629ec" width="700" height="450">
 <img src="https://github.com/wkddns40/ev-station/assets/30453120/06561922-60cd-4b3f-af66-759bcb21c8d4" width="700" height="450">
