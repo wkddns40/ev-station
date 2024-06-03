@@ -16,9 +16,9 @@
   transform: scale(0.95);
   transition: transform 100ms ease-in;
 }
-.hide-scrollbar::-webkit-scrollbar {
+/* .hide-scrollbar::-webkit-scrollbar {
   display: none;
-}
+} */
 .hole-tooltip {
   display: auto;
   z-index: 9;
