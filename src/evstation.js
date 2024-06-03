@@ -71,6 +71,7 @@ export default function Map() {
   const [showAllData, setShowAllData] = useState(false);
   const [elevationFactor, setElevationFactor] = useState(0);
 
+  // 클릭 시 지도 스타일 밝기 변경
   // const toggleMapStyle = () => {
   //   if (mapStyle === 'mapbox://styles/djangbogo/cli8sh8dd010d01po64z6hkyl') {
   //     setMapStyle('mapbox://styles/djangbogo/clguo7jun002c01r8eny34b5q');
@@ -83,7 +84,7 @@ export default function Map() {
   //   }
   // }
 
-
+  // 낮과 밤 시간대에 따른 화면 밝기 변경
   // const updateTheme = () => {
   //   const currentHour = new Date().getHours();
   //   // if (currentHour >= 6 && currentHour < 18) {
@@ -98,7 +99,6 @@ export default function Map() {
   //   }
   // }
 
-  
   const validData = data.filter(d => {
     return d.geometry.coordinates[0] !== "NULL" &&
     d.geometry.coordinates[1] !== "NULL" &&
