@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from flask import Flask, jsonify, make_response
 from flask_caching import Cache
 import mysql.connector
@@ -6,6 +8,7 @@ import json
 from collections import OrderedDict
 from flask_cors import CORS
 
+load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
@@ -16,10 +19,11 @@ cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache'})
 def get_db_connection():
     try:
         connection = mysql.connector.connect(
-            host="localhost",
-            user="",
-            password="",
-            database=""
+            host=os.environ.get('DB_HOST', 'localhost'),
+            port=int(os.environ.get('DB_PORT', '3306')),
+            user=os.environ.get('DB_USER', ''),
+            password=os.environ.get('DB_PASSWORD', ''),
+            database=os.environ.get('DB_NAME', '')
         )
         logging.debug('Connected to the database')
         return connection
@@ -81,4 +85,7 @@ def get_geojson():
     return response
 
 if __name__ == "__main__":
-  app.run(debug=True, host='0.0.0.0')
+    debug_mode = os.environ.get('FLASK_ENV', 'production').lower() == 'development'
+    host = os.environ.get('FLASK_HOST', '127.0.0.1')
+    port = int(os.environ.get('FLASK_PORT', '5000'))
+    app.run(debug=debug_mode, host=host, port=port)

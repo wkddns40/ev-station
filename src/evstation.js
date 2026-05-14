@@ -16,9 +16,9 @@ import Tooltip from './ToolTip';
 import ButtonGroup from './ButtonGroup';
 // import { useReducer } from 'react';
 
-MapboxGL.accessToken = '';
+MapboxGL.accessToken = process.env.REACT_APP_MAPBOX_TOKEN || '';
 
-const DATA_URL = '';
+const DATA_URL = `${process.env.REACT_APP_API_BASE_URL || ''}/charger`;
 
 const INITIAL_VIEW_STATE = {
   longitude: 127.7,
@@ -59,8 +59,7 @@ export default function Map() {
   const [hasZoomedIn, setHasZoomedIn] = useState(false);
   const [sortOrder, setSortOrder] = useState('asc');
   const [tooltipInfo, setTooltipInfo] = useState(null);
-  // const [mapStyle, setMapStyle] = useState('mapbox://styles/djangbogo/cli8sh8dd010d01po64z6hkyl');
-  const [mapStyle] = useState('mapbox://styles/djangbogo/cli8sh8dd010d01po64z6hkyl');
+  const [mapStyle] = useState(process.env.REACT_APP_MAPBOX_STYLE_URL || '');
   // eslint-disable-next-line
   // const [theme, setTheme] = useState('');
   // const [color, setColor] = useState('');
@@ -70,34 +69,6 @@ export default function Map() {
   const [chargerNameSearchTerm, setChargerNameSearchTerm] = useState('');
   const [showAllData, setShowAllData] = useState(false);
   const [elevationFactor, setElevationFactor] = useState(0);
-
-  // 클릭 시 지도 스타일 밝기 변경
-  // const toggleMapStyle = () => {
-  //   if (mapStyle === 'mapbox://styles/djangbogo/cli8sh8dd010d01po64z6hkyl') {
-  //     setMapStyle('mapbox://styles/djangbogo/clguo7jun002c01r8eny34b5q');
-  //     setTheme('dark');
-  //     setColor('cyan');
-  //   } else {
-  //     setMapStyle('mapbox://styles/djangbogo/cli8sh8dd010d01po64z6hkyl');
-  //     setTheme('light');
-  //     setColor('#212163');
-  //   }
-  // }
-
-  // 낮과 밤 시간대에 따른 화면 밝기 변경
-  // const updateTheme = () => {
-  //   const currentHour = new Date().getHours();
-  //   // if (currentHour >= 6 && currentHour < 18) {
-  //     if (currentHour > 0) {
-  //     setMapStyle('mapbox://styles/djangbogo/cli8sh8dd010d01po64z6hkyl');
-  //     setTheme('light');
-  //     setColor('#212163');
-  //   } else {
-  //     setMapStyle('mapbox://styles/djangbogo/clguo7jun002c01r8eny34b5q');
-  //     setTheme('dark');
-  //     setColor('cyan');
-  //   }
-  // }
 
   const validData = data.filter(d => {
     return d.geometry.coordinates[0] !== "NULL" &&
@@ -156,7 +127,7 @@ export default function Map() {
       id: 'icon-layer',
       data: [lastDataPoint],
       pickable: true,
-      iconAtlas: 'http://127.0.0.1:5500/public/car.png', 
+      iconAtlas: `${process.env.PUBLIC_URL}/car.png`,
       iconMevstationing: {
         marker: {x: 10, y: 150, width: 512, height: 512, mask: false}
       },
@@ -472,7 +443,7 @@ useEffect(() => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch('http://v2cloud.iptime.org:5000/charger');
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || ''}/charger`);
       const data = await response.json();
   
       const uniqueManufacturers = Array.from(new Set(data.feature.map(feature => feature.properties.mnfacr_name))).filter(Boolean);

@@ -1,11 +1,30 @@
-  EV-STATION  
---- 
-최근 전기차 보급의 확대로 전기차 배터리 충전소의 충전기에 대한 정보의 수요가 증가하고 있다는 점을 고려하여 배터리 충전소의 충전기 정보 제공 서비스 개발 프로젝트
+# EV-STATION
 
-프로젝트 목표
----
-* WebGL기반의 사용자 편의를 위한 직관적인 애플리케이션 구현
-* 대시보드 형태의 화면과 슬라이딩 패널을 통한 기능 구현
-* 동적 상태 관리를 통한 컴포넌트에서 변경되는 데이터 반영 및 관리
-* 시간에 따른 데이터 변화를 고려한 수정 및 확장에 용이한 구조로 구현
-* 충전소의 제조사별 충전기 효율 상태 정보를 REST API로 처리
+Real-time EV charging station dashboard for Korea with WebGL-accelerated geospatial visualization.
+
+> 🇰🇷 한국어 README: [`README.ko.md`](README.ko.md)
+
+## Status
+
+**Active refactor in progress.** This repository is being migrated to a modern stack:
+
+- React 18 + TypeScript (full strict) + Vite
+- deck.gl WebGL rendering with MapLibre + OpenFreeMap tiles
+- Flask backend with env-loaded config and connection pooling
+- Vitest + pytest + GitHub Actions CI
+- Live demo on Vercel with static mock data
+
+The full plan, phase atomic tasks, locked decisions, and verification checkboxes live in `REFACTOR_PLAN.md` at the repository root.
+
+## Pre-refactor state
+
+The pre-refactor source is preserved on the `legacy` branch and the signed `v0-legacy` tag.
+
+```
+git fetch origin
+git checkout legacy
+```
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).
