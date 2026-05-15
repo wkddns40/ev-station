@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
 import Evstation from './Evstation';
+import DemoBanner from './DemoBanner';
 import { FiltersProvider } from './state/FiltersContext';
 
 const queryClient = new QueryClient({
@@ -15,6 +16,7 @@ ReactDOM.createRoot(container).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <FiltersProvider>
+        <DemoBanner />
         <Evstation />
       </FiltersProvider>
     </QueryClientProvider>
