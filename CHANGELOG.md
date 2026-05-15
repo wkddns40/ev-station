@@ -6,6 +6,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+### Changed
+- Repo restructured into `frontend/` (CRA app: `src/`, `public/`, `package.json`, `package-lock.json`, `.env`, `.env.example`) and `backend/` (Flask: `charger_api.py`, `mock_server.py`, `fixtures/`, `requirements.txt`, `.env.example`); empty `api/` and root `src/` removed (Phase 2a, §5)
+- `.env.example` split into `frontend/.env.example` (`REACT_APP_*` keys) and `backend/.env.example` (`DB_*`, `FLASK_*`, `CACHE_TTL_SECONDS`); both gitignore-tracked siblings of their respective `.env` (Phase 2a)
+
 ### Added
 - `src/__tests__/regression.test.js` with `xit` stubs for B3, B4, B5, B6 (Phase 4 activates) (T1.10)
 - `api/mock_server.py` + `api/fixtures/chargers.geojson` for headless Phase 1 smoke testing without MySQL (T1.11)

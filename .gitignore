@@ -33,3 +33,4 @@ npm-debug.log*
 
 # Secrets
 leaks.json
+.gstack/
