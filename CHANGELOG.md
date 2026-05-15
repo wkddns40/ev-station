@@ -6,6 +6,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+### Added
+- `frontend/src/state/filtersReducer.ts` — pure `filtersReducer` + `FilterAction` union (`SET_REGION`, `SET_MANUFACTURER`, `SET_VOLT_TYPE`, `SET_EFFICIENCY_VALUE`, `SET_FILTER_STEP`, `TOGGLE_SORT_ORDER`, `RESET`) with exhaustive `never` default (Phase 2e, §5)
+- `frontend/src/state/FiltersContext.tsx` — `FiltersProvider` (mounts `useReducer`) + `useFilters()` hook that throws on missing provider (Phase 2e)
+
+### Changed
+- All filter state (`searchTerm`/`region`, `manufacturer`, `voltType`, `efficiencyValue`, `filterStep`, `sortOrder`, `selectedFilters`) consolidated into a single `useReducer` mounted at `FiltersProvider` in `main.tsx`; `Evstation.tsx` `useState` count 30 → 23 (Phase 2e)
+- `Evstation.tsx`: filter-related sync `useEffect` hooks (3 of them, mirroring `manufacturer`/`voltType`/`efficiencyValue` into `selectedFilters`) deleted — reducer updates are atomic, no mirror needed (Phase 2e)
+- `SearchFilterPane.tsx` prop interface trimmed by 12 filter props (region/manufacturer/voltType/efficiencyValue + setters, `filterStep` + `setFilterStep`, `selectedFilters` + `setSelectedFilters`, `toggleSortOrder`); pane consumes `useFilters()` directly (Phase 2e)
+- `ButtonGroup.tsx`: `setSearchTerm` prop replaced with internal `useFilters()` dispatch of `SET_REGION ''` when closing the charger-name search overlay (Phase 2e)
+- `frontend/src/types/filters.ts`: `FilterState` extended with `sortOrder` + `filterStep`; `emptyFilterState` renamed to `defaultFilterState` (Phase 2e)
+
 ### Changed
 - Basemap migrated from **Mapbox GL JS** to **MapLibre GL JS** (`maplibre-gl ^5.24.0`) with tiles served from **OpenFreeMap Liberty** style (`https://tiles.openfreemap.org/styles/liberty`); no API key required (Phase 2d, §5, D2)
 - `react-map-gl` upgraded **5.1.5 → 8.1.1**; `InteractiveMap` (v5) replaced with `Map` from `react-map-gl/maplibre` subpath; deprecated `preventStyleDiffing` and `mapboxApiAccessToken` props removed (Phase 2d)

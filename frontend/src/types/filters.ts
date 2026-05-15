@@ -1,18 +1,22 @@
+export type SortOrder = 'asc' | 'desc';
+
 export type FilterState = {
   region: string;
   manufacturer: string;
   voltType: string;
   efficiencyValue: string;
+  sortOrder: SortOrder;
+  filterStep: number;
 };
 
-export const emptyFilterState: FilterState = {
+export const defaultFilterState: FilterState = {
   region: '',
   manufacturer: '',
   voltType: '',
   efficiencyValue: '',
+  sortOrder: 'asc',
+  filterStep: 0,
 };
-
-export type SortOrder = 'asc' | 'desc';
 
 export type ViewState = {
   longitude: number;

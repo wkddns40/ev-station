@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { useFilters } from './state/FiltersContext';
 
 type ButtonGroupProps = {
   handleZoomIn: () => void;
@@ -7,7 +8,6 @@ type ButtonGroupProps = {
   handleHomeClick: () => void;
   showSearch: boolean;
   setShowSearch: Dispatch<SetStateAction<boolean>>;
-  setSearchTerm: Dispatch<SetStateAction<string>>;
   setLeftPaneIsOpen: Dispatch<SetStateAction<boolean>>;
   leftPaneIsOpen?: boolean;
   chargerNameSearchTerm: string;
@@ -21,12 +21,12 @@ function ButtonGroup({
   handleHomeClick,
   showSearch,
   setShowSearch,
-  setSearchTerm,
   setLeftPaneIsOpen,
   leftPaneIsOpen,
   chargerNameSearchTerm,
   setChargerNameSearchTerm,
 }: ButtonGroupProps) {
+  const { dispatch } = useFilters();
   return (
     <div>
       <div id="zoom-button-container" className="zoom-button-container">
@@ -48,7 +48,7 @@ function ButtonGroup({
         onClick={() => {
           setShowSearch(!showSearch);
           if (showSearch) {
-            setSearchTerm('');
+            dispatch({ type: 'SET_REGION', value: '' });
           }
         }}
         className="search-button"

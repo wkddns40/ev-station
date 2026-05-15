@@ -13,13 +13,14 @@ import SearchFilterPane from './SearchFilterPane';
 import Tooltip, { type TooltipInfo } from './ToolTip';
 import ButtonGroup from './ButtonGroup';
 import type { ChargerFeature, ChargerProperties } from './types/charger';
-import type { FilterState, SortOrder, ViewState, ZoomTarget } from './types/filters';
-import { emptyFilterState } from './types/filters';
+import type { ViewState, ZoomTarget } from './types/filters';
 import { INITIAL_VIEW_STATE, MAP_STYLE_URL } from './constants/viewport';
+import { useFilters } from './state/FiltersContext';
 
 const DATA_URL = `${import.meta.env.VITE_API_BASE_URL || ''}/charger`;
 
 export default function Evstation() {
+  const { state: filters, dispatch } = useFilters();
   const [paneIsOpen, setPaneIsOpen] = useState<boolean>(false);
   const [clickedChargerId, setClickedChargerId] = useState<string | null>(null);
   const [clickedChargerName, setClickedChargerName] = useState<string | null>(null);
@@ -27,22 +28,15 @@ export default function Evstation() {
   const [clickedMnfacrName, setClickedMnfacrName] = useState<string | null>(null);
   const [leftPaneIsOpen, setLeftPaneIsOpen] = useState<boolean>(false);
   const [rightPaneIsOpen, setRightPaneIsOpen] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [manufacturer, setManufacturer] = useState<string>('');
   const [manufacturers, setManufacturers] = useState<string[]>([]);
   const [data, setData] = useState<ChargerFeature[]>([]);
   const [showSearch, setShowSearch] = useState<boolean>(false);
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [mapViewState, setMapViewState] = useState<ViewState>(INITIAL_VIEW_STATE);
   const [zoomButtonDisabled, setZoomButtonDisabled] = useState<boolean>(false);
-  const [voltType, setVoltType] = useState<string>('');
   const [voltTypes, setVoltTypes] = useState<string[]>([]);
-  const [efficiencyValue, setEfficiencyValue] = useState<string>('');
   const [efficiencyValues, setEfficiencyValues] = useState<number[]>([]);
-  const [filterStep, setFilterStep] = useState<number>(0);
-  const [selectedFilters, setSelectedFilters] = useState<FilterState>(emptyFilterState);
   const [hasZoomedIn, setHasZoomedIn] = useState<ZoomTarget>(false);
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
   const [theme] = useState<string>('');
   const [color] = useState<string>('');
@@ -164,15 +158,15 @@ export default function Evstation() {
 
   const propertiesData = data.map((d) => d.properties);
   const selectedPropertiesData = propertiesData.filter((item) => {
-    const regionMatch = selectedFilters.region
-      ? selectedFilters.region.includes('/')
-        ? selectedFilters.region.split('/').some((r) => item.address.includes(r))
-        : item.address.includes(selectedFilters.region)
+    const regionMatch = filters.region
+      ? filters.region.includes('/')
+        ? filters.region.split('/').some((r) => item.address.includes(r))
+        : item.address.includes(filters.region)
       : true;
-    const manufacturerMatch = selectedFilters.manufacturer ? item.mnfacr_name === selectedFilters.manufacturer : true;
-    const voltTypeMatch = selectedFilters.voltType ? item.volt_type === selectedFilters.voltType : true;
-    const efficiencyValueMatch = selectedFilters.efficiencyValue !== ''
-      ? Number(item.charging_efficiency) === Number(selectedFilters.efficiencyValue)
+    const manufacturerMatch = filters.manufacturer ? item.mnfacr_name === filters.manufacturer : true;
+    const voltTypeMatch = filters.voltType ? item.volt_type === filters.voltType : true;
+    const efficiencyValueMatch = filters.efficiencyValue !== ''
+      ? Number(item.charging_efficiency) === Number(filters.efficiencyValue)
       : true;
     return regionMatch && manufacturerMatch && voltTypeMatch && efficiencyValueMatch;
   });
@@ -202,12 +196,8 @@ export default function Evstation() {
     URL.revokeObjectURL(url);
   };
 
-  const toggleSortOrder = (): void => {
-    setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
-  };
-
   const sortResults = (results: ChargerFeature[]): ChargerFeature[] =>
-    [...results].sort((a, b) => (sortOrder === 'asc'
+    [...results].sort((a, b) => (filters.sortOrder === 'asc'
       ? a.properties.charging_efficiency - b.properties.charging_efficiency
       : b.properties.charging_efficiency - a.properties.charging_efficiency));
 
@@ -254,17 +244,13 @@ export default function Evstation() {
   const handleHomeClick = (): void => {
     setPaneIsOpen(false);
     setSelectedAddress(null);
-    setSearchTerm('');
     setShowSearch(false);
     setLeftPaneIsOpen(false);
     handleZoomOut();
     setZoomButtonDisabled(false);
     setChargerNameSearchTerm('');
     setHasZoomedIn(false);
-    setManufacturer('');
-    setVoltType('');
-    setSelectedFilters(emptyFilterState);
-    setFilterStep(0);
+    dispatch({ type: 'RESET' });
   };
 
   const handleAddressClick = (chargerId: string): void => {
@@ -285,24 +271,6 @@ export default function Evstation() {
       }
     }
   };
-
-  useEffect(() => {
-    if (manufacturer !== '' && !Object.values(selectedFilters).includes(manufacturer)) {
-      setSelectedFilters((prevFilters) => ({ ...prevFilters, manufacturer }));
-    }
-  }, [manufacturer, selectedFilters]);
-
-  useEffect(() => {
-    if (voltType !== '' && !Object.values(selectedFilters).includes(voltType)) {
-      setSelectedFilters((prevFilters) => ({ ...prevFilters, voltType }));
-    }
-  }, [voltType, selectedFilters]);
-
-  useEffect(() => {
-    if (efficiencyValue !== '' && !Object.values(selectedFilters).includes(efficiencyValue)) {
-      setSelectedFilters((prevFilters) => ({ ...prevFilters, efficiencyValue }));
-    }
-  }, [efficiencyValue, selectedFilters]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
@@ -352,22 +320,23 @@ export default function Evstation() {
   }, [selectedAddress, validData]);
 
   const filteredResults = useMemo<ChargerFeature[]>(() => {
+    const region = filters.region;
     const regionMatch = (feature: ChargerFeature): boolean => {
-      if (searchTerm === '') return true;
+      if (region === '') return true;
       const address = feature.properties.address;
       if (!address) return false;
-      return searchTerm.includes('/')
-        ? searchTerm.split('/').some((r) => address.includes(r))
-        : address.includes(searchTerm);
+      return region.includes('/')
+        ? region.split('/').some((r) => address.includes(r))
+        : address.includes(region);
     };
     const manufacturerMatch = (feature: ChargerFeature): boolean =>
-      manufacturer === '' || feature.properties.mnfacr_name === manufacturer;
+      filters.manufacturer === '' || feature.properties.mnfacr_name === filters.manufacturer;
     const voltTypeMatch = (feature: ChargerFeature): boolean =>
-      voltType === '' || feature.properties.volt_type === voltType;
+      filters.voltType === '' || feature.properties.volt_type === filters.voltType;
     const efficiencyMatch = (feature: ChargerFeature): boolean =>
-      efficiencyValue === '' || Math.abs(feature.properties.charging_efficiency - Number(efficiencyValue)) <= 0.0001;
+      filters.efficiencyValue === '' || Math.abs(feature.properties.charging_efficiency - Number(filters.efficiencyValue)) <= 0.0001;
     return data.filter((f) => regionMatch(f) && manufacturerMatch(f) && voltTypeMatch(f) && efficiencyMatch(f));
-  }, [data, searchTerm, manufacturer, voltType, efficiencyValue]);
+  }, [data, filters.region, filters.manufacturer, filters.voltType, filters.efficiencyValue]);
 
   const efficiencyArray = filteredResults.map((result) => Number(result.properties.charging_efficiency));
   const avgEfficiency = efficiencyArray.reduce((acc, val) => acc + val, 0) / efficiencyArray.length;
@@ -398,29 +367,16 @@ export default function Evstation() {
           <SearchFilterPane
             leftPaneIsOpen={leftPaneIsOpen}
             setLeftPaneIsOpen={setLeftPaneIsOpen}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            setSelectedFilters={setSelectedFilters}
             handleZoomOut={handleZoomOut}
             setHasZoomedIn={setHasZoomedIn}
             handleZoomIn={handleZoomIn}
-            setFilterStep={setFilterStep}
             searchTerms={searchTerms}
             handleZoomInJeju={handleZoomInJeju}
-            filterStep={filterStep}
-            manufacturer={manufacturer}
-            setManufacturer={setManufacturer}
             manufacturers={manufacturers}
-            voltType={voltType}
-            setVoltType={setVoltType}
             voltTypes={voltTypes}
-            efficiencyValue={efficiencyValue}
             efficiencyValues={efficiencyValues}
-            setEfficiencyValue={setEfficiencyValue}
-            selectedFilters={selectedFilters}
             setRightPaneIsOpen={setRightPaneIsOpen}
             filteredResults={filteredResults}
-            toggleSortOrder={toggleSortOrder}
             sortResults={sortResults}
             handleAddressClick={handleAddressClick}
             selectedAddress={selectedAddress}
@@ -440,7 +396,6 @@ export default function Evstation() {
           handleHomeClick={handleHomeClick}
           showSearch={showSearch}
           setShowSearch={setShowSearch}
-          setSearchTerm={setSearchTerm}
           setLeftPaneIsOpen={setLeftPaneIsOpen}
           chargerNameSearchTerm={chargerNameSearchTerm}
           setChargerNameSearchTerm={setChargerNameSearchTerm}

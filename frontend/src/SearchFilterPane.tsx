@@ -1,31 +1,21 @@
 import type { Dispatch, SetStateAction } from 'react';
 import SlidingPane from 'react-sliding-pane';
 import type { ChargerFeature, ChargerProperties } from './types/charger';
-import type { FilterState, ZoomTarget } from './types/filters';
+import type { ZoomTarget } from './types/filters';
+import { useFilters } from './state/FiltersContext';
 
 type SearchFilterPaneProps = {
   leftPaneIsOpen: boolean;
   setLeftPaneIsOpen: Dispatch<SetStateAction<boolean>>;
-  searchTerm: string;
-  setSearchTerm: Dispatch<SetStateAction<string>>;
-  setSelectedFilters: Dispatch<SetStateAction<FilterState>>;
   handleZoomOut: () => void;
   setHasZoomedIn: Dispatch<SetStateAction<ZoomTarget>>;
   handleZoomIn: () => void;
-  setFilterStep: Dispatch<SetStateAction<number>>;
   searchTerms: readonly string[];
   handleZoomInJeju: () => void;
-  filterStep: number;
-  manufacturer: string;
-  setManufacturer: Dispatch<SetStateAction<string>>;
   manufacturers: string[];
-  voltType: string;
-  setVoltType: Dispatch<SetStateAction<string>>;
   voltTypes: string[];
-  selectedFilters: FilterState;
   setRightPaneIsOpen: Dispatch<SetStateAction<boolean>>;
   filteredResults: ChargerFeature[];
-  toggleSortOrder: () => void;
   sortResults: (results: ChargerFeature[]) => ChargerFeature[];
   handleAddressClick: (chargerId: string) => void;
   selectedAddress: string | null;
@@ -33,8 +23,6 @@ type SearchFilterPaneProps = {
   selectedPropertiesData: ChargerProperties[];
   convertToCSV: (rows: ChargerProperties[]) => string;
   downloadCSV: (content: string, fileName: string) => void;
-  efficiencyValue: string;
-  setEfficiencyValue: Dispatch<SetStateAction<string>>;
   efficiencyValues: number[];
   avgEfficiency: number;
   minEfficiency: number;
@@ -43,16 +31,17 @@ type SearchFilterPaneProps = {
 
 const SearchFilterPane = (props: SearchFilterPaneProps) => {
   const {
-    leftPaneIsOpen, setLeftPaneIsOpen, searchTerm, setSearchTerm,
-    setSelectedFilters, handleZoomOut, setHasZoomedIn, handleZoomIn,
-    setFilterStep, searchTerms, handleZoomInJeju, filterStep,
-    manufacturer, setManufacturer, manufacturers, voltType,
-    setVoltType, voltTypes, selectedFilters, setRightPaneIsOpen,
-    filteredResults, toggleSortOrder, sortResults, handleAddressClick,
+    leftPaneIsOpen, setLeftPaneIsOpen,
+    handleZoomOut, setHasZoomedIn, handleZoomIn,
+    searchTerms, handleZoomInJeju,
+    manufacturers, voltTypes,
+    setRightPaneIsOpen,
+    filteredResults, sortResults, handleAddressClick,
     selectedAddress, hasZoomedIn, selectedPropertiesData,
-    convertToCSV, downloadCSV, efficiencyValue, setEfficiencyValue,
-    efficiencyValues, avgEfficiency, minEfficiency, maxEfficiency,
+    convertToCSV, downloadCSV, efficiencyValues,
+    avgEfficiency, minEfficiency, maxEfficiency,
   } = props;
+  const { state: filters, dispatch } = useFilters();
 
   return (
     <SlidingPane
@@ -69,22 +58,15 @@ const SearchFilterPane = (props: SearchFilterPaneProps) => {
           <select
             id="search-select"
             className="custom-select custom-option"
-            value={searchTerm}
+            value={filters.region}
             onChange={(e) => {
               const selectedRegion = e.target.value;
-              setSearchTerm(selectedRegion);
-              setSelectedFilters((filters) => ({ ...filters, region: selectedRegion }));
-
               if (selectedRegion === '전체') {
                 handleZoomOut();
                 setHasZoomedIn(false);
-                setSearchTerm('');
-                setManufacturer('');
-                setVoltType('');
-                setEfficiencyValue('');
-                setSelectedFilters({ region: '', manufacturer: '', voltType: '', efficiencyValue: '' });
-                setFilterStep(0);
+                dispatch({ type: 'RESET' });
               } else {
+                dispatch({ type: 'SET_REGION', value: selectedRegion });
                 if (selectedRegion === '서울' || selectedRegion === '경기/인천') {
                   if (hasZoomedIn !== 'seoul_gyeongin') {
                     handleZoomIn();
@@ -96,7 +78,7 @@ const SearchFilterPane = (props: SearchFilterPaneProps) => {
                     setHasZoomedIn('jeju');
                   }
                 }
-                setFilterStep(3);
+                dispatch({ type: 'SET_FILTER_STEP', value: 3 });
               }
             }}
           >
@@ -108,17 +90,12 @@ const SearchFilterPane = (props: SearchFilterPaneProps) => {
           <button
             className="add-filter"
             onClick={() => {
-              if (filterStep >= 3) {
-                setFilterStep(0);
-                setSearchTerm('');
-                setManufacturer('');
-                setVoltType('');
-                setEfficiencyValue('');
-                setSelectedFilters({ region: '', manufacturer: '', voltType: '', efficiencyValue: '' });
+              if (filters.filterStep >= 3) {
+                dispatch({ type: 'RESET' });
                 handleZoomOut();
                 setHasZoomedIn(false);
               } else {
-                setFilterStep(filterStep + 3);
+                dispatch({ type: 'SET_FILTER_STEP', value: filters.filterStep + 3 });
               }
             }}
           >
@@ -138,14 +115,13 @@ const SearchFilterPane = (props: SearchFilterPaneProps) => {
             </svg>
             <span className="span-add-filter">+add</span>
           </button>
-          {filterStep >= 1 && (
+          {filters.filterStep >= 1 && (
             <select
               id="manufacturer-select"
               className="custom-select custom-option"
-              value={manufacturer}
-              onChange={(e) => setManufacturer(e.target.value)}
-              onBlur={(e) => setSelectedFilters((filters) => ({ ...filters, manufacturer: e.target.value }))}
-              disabled={searchTerm === ''}
+              value={filters.manufacturer}
+              onChange={(e) => dispatch({ type: 'SET_MANUFACTURER', value: e.target.value })}
+              disabled={filters.region === ''}
             >
               <option value="">제조사</option>
               {manufacturers.map((mnfacr_name) => (
@@ -153,14 +129,13 @@ const SearchFilterPane = (props: SearchFilterPaneProps) => {
               ))}
             </select>
           )}
-          {filterStep >= 2 && (
+          {filters.filterStep >= 2 && (
             <select
               id="volt-type-select"
               className="custom-select custom-option"
-              value={voltType}
-              onChange={(e) => setVoltType(e.target.value)}
-              onBlur={(e) => setSelectedFilters((filters) => ({ ...filters, voltType: e.target.value }))}
-              disabled={searchTerm === ''}
+              value={filters.voltType}
+              onChange={(e) => dispatch({ type: 'SET_VOLT_TYPE', value: e.target.value })}
+              disabled={filters.region === ''}
             >
               <option value="">계량기 종류</option>
               {voltTypes.map((type) => (
@@ -168,14 +143,13 @@ const SearchFilterPane = (props: SearchFilterPaneProps) => {
               ))}
             </select>
           )}
-          {filterStep >= 3 && (
+          {filters.filterStep >= 3 && (
             <select
               id="efficiency-select"
               className="custom-select custom-option"
-              value={efficiencyValue}
-              onChange={(e) => setEfficiencyValue(e.target.value)}
-              onBlur={(e) => setSelectedFilters((filters) => ({ ...filters, efficiencyValue: e.target.value }))}
-              disabled={searchTerm === ''}
+              value={filters.efficiencyValue}
+              onChange={(e) => dispatch({ type: 'SET_EFFICIENCY_VALUE', value: e.target.value })}
+              disabled={filters.region === ''}
             >
               <option value="">충전기 효율</option>
               {efficiencyValues.map((charging_efficiency) => (
@@ -185,9 +159,11 @@ const SearchFilterPane = (props: SearchFilterPaneProps) => {
           )}
 
           <div className="selected-filters selected-filters-box">
-            {Object.values(selectedFilters).map((filter, index) => filter && (
-              <span key={index}>{filter}/</span>
-            ))}
+            {[filters.region, filters.manufacturer, filters.voltType, filters.efficiencyValue]
+              .filter((v) => v !== '')
+              .map((filter, index) => (
+                <span key={index}>{filter}/</span>
+              ))}
           </div>
           <button className="open-rg" onClick={() => setRightPaneIsOpen((current) => !current)}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon">
@@ -200,7 +176,7 @@ const SearchFilterPane = (props: SearchFilterPaneProps) => {
         <div className="result-container">
           <div className="result-info">
             {filteredResults.length} 건 검색됨
-            <button className="sort" onClick={toggleSortOrder}>
+            <button className="sort" onClick={() => dispatch({ type: 'TOGGLE_SORT_ORDER' })}>
               <svg xmlns="http://www.w3.org/2000/svg" width="25" height="20" viewBox="0 0 25 25" stroke="currentColor" className="sort-icon">
                 <line x1="7.5" y1="20" x2="7.5" y2="5" strokeWidth="1" />
                 <polyline points="5,7.5 7.5,5 7,7.5" strokeWidth="1" fill="none" />
