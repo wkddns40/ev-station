@@ -13,9 +13,9 @@ import SearchFilterPane from './SearchFilterPane';
 import Tooltip from './ToolTip';
 import ButtonGroup from './ButtonGroup';
 
-MapboxGL.accessToken = process.env.REACT_APP_MAPBOX_TOKEN || '';
+MapboxGL.accessToken = import.meta.env.VITE_MAPBOX_TOKEN || '';
 
-const DATA_URL = `${process.env.REACT_APP_API_BASE_URL || ''}/charger`;
+const DATA_URL = `${import.meta.env.VITE_API_BASE_URL || ''}/charger`;
 
 const INITIAL_VIEW_STATE = {
   longitude: 127.7,
@@ -51,7 +51,7 @@ export default function Map() {
   const [hasZoomedIn, setHasZoomedIn] = useState(false);
   const [sortOrder, setSortOrder] = useState('asc');
   const [tooltipInfo, setTooltipInfo] = useState(null);
-  const [mapStyle] = useState(process.env.REACT_APP_MAPBOX_STYLE_URL || '');
+  const [mapStyle] = useState(import.meta.env.VITE_MAPBOX_STYLE_URL || '');
   const [theme] = useState('');
   const [color] = useState('');
   const [chargerNameSearchTerm, setChargerNameSearchTerm] = useState('');
@@ -114,7 +114,7 @@ export default function Map() {
       id: 'icon-layer',
       data: [lastDataPoint],
       pickable: true,
-      iconAtlas: `${process.env.PUBLIC_URL}/car.png`,
+      iconAtlas: '/car.png',
       iconMapping: {
         marker: {x: 10, y: 150, width: 512, height: 512, mask: false}
       },
