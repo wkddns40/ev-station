@@ -1,0 +1,125 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [127.0053101, 37.4199248] },
+      "properties": {
+        "charger_id": "C001",
+        "charger_name": "강남 충전소 1",
+        "mnfacr_name": "ChargePoint",
+        "model_name": "CP-100",
+        "volt_type": "급속",
+        "charging_efficiency": 92.5,
+        "speed": 50,
+        "systemtime": "2026-05-15T10:00:00",
+        "address": "서울특별시 강남구 역삼동"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [127.0273101, 37.5099248] },
+      "properties": {
+        "charger_id": "C002",
+        "charger_name": "강남 충전소 2",
+        "mnfacr_name": "EVlink",
+        "model_name": "EV-200",
+        "volt_type": "완속",
+        "charging_efficiency": 0,
+        "speed": 7,
+        "systemtime": "2026-05-15T10:05:00",
+        "address": "서울특별시 강남구 삼성동"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [127.1053101, 37.4699248] },
+      "properties": {
+        "charger_id": "C003",
+        "charger_name": "송파 충전소 1",
+        "mnfacr_name": "ChargePoint",
+        "model_name": "CP-200",
+        "volt_type": "급속",
+        "charging_efficiency": 88.3,
+        "speed": 50,
+        "systemtime": "2026-05-15T10:10:00",
+        "address": "서울특별시 송파구 잠실동"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [126.5253101, 33.3999248] },
+      "properties": {
+        "charger_id": "C004",
+        "charger_name": "제주 공항 충전소",
+        "mnfacr_name": "EVlink",
+        "model_name": "EV-100",
+        "volt_type": "급속",
+        "charging_efficiency": 95.1,
+        "speed": 100,
+        "systemtime": "2026-05-15T10:15:00",
+        "address": "제주특별자치도 제주시 용담동"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [126.5453101, 33.4499248] },
+      "properties": {
+        "charger_id": "C005",
+        "charger_name": "제주 시청 충전소",
+        "mnfacr_name": "BlueOne",
+        "model_name": "BO-50",
+        "volt_type": "완속",
+        "charging_efficiency": 78.0,
+        "speed": 7,
+        "systemtime": "2026-05-15T10:20:00",
+        "address": "제주특별자치도 제주시 이도이동"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [129.0753101, 35.1599248] },
+      "properties": {
+        "charger_id": "C006",
+        "charger_name": "부산역 충전소",
+        "mnfacr_name": "BlueOne",
+        "model_name": "BO-100",
+        "volt_type": "급속",
+        "charging_efficiency": 91.7,
+        "speed": 50,
+        "systemtime": "2026-05-15T10:25:00",
+        "address": "부산광역시 동구 초량동"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [126.9784, 37.5665] },
+      "properties": {
+        "charger_id": "C007",
+        "charger_name": "광화문 충전소",
+        "mnfacr_name": "ChargePoint",
+        "model_name": "CP-300",
+        "volt_type": "완속",
+        "charging_efficiency": 85.4,
+        "speed": -7,
+        "systemtime": "2026-05-15T10:30:00",
+        "address": "서울특별시 종로구 세종로"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [127.4341, 36.3504] },
+      "properties": {
+        "charger_id": "C008",
+        "charger_name": "대전역 충전소",
+        "mnfacr_name": "EVlink",
+        "model_name": "EV-300",
+        "volt_type": "급속",
+        "charging_efficiency": 89.9,
+        "speed": 50,
+        "systemtime": "2026-05-15T10:35:00",
+        "address": "대전광역시 동구 정동"
+      }
+    }
+  ]
+}

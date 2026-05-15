@@ -40,8 +40,8 @@ const SearchFilterPane = (props) => {
                   setManufacturer('');
                   setVoltType('');
                   setEfficiencyValue('');
-                  setSelectedFilters([]);
-                  setFilterStep(0); 
+                  setSelectedFilters({region: '', manufacturer: '', voltType: '', efficiencyValue: ''});
+                  setFilterStep(0);
                 } else {
                   if (selectedRegion === '서울' || selectedRegion === '경기/인천') {
                     if (hasZoomedIn !== 'seoul_gyeongin') {
@@ -75,7 +75,7 @@ const SearchFilterPane = (props) => {
                 setManufacturer("");
                 setVoltType("");
                 setEfficiencyValue("");
-                setSelectedFilters([]);
+                setSelectedFilters({region: '', manufacturer: '', voltType: '', efficiencyValue: ''});
                 handleZoomOut();
                 setHasZoomedIn(false);
 
