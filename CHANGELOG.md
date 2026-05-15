@@ -7,6 +7,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 ## [Unreleased]
 
 ### Changed
+- Basemap migrated from **Mapbox GL JS** to **MapLibre GL JS** (`maplibre-gl ^5.24.0`) with tiles served from **OpenFreeMap Liberty** style (`https://tiles.openfreemap.org/styles/liberty`); no API key required (Phase 2d, §5, D2)
+- `react-map-gl` upgraded **5.1.5 → 8.1.1**; `InteractiveMap` (v5) replaced with `Map` from `react-map-gl/maplibre` subpath; deprecated `preventStyleDiffing` and `mapboxApiAccessToken` props removed (Phase 2d)
+- `frontend/src/constants/viewport.ts` introduced — `MAP_STYLE_URL` constant + `INITIAL_VIEW_STATE` extracted from `Evstation.tsx` (Phase 2d)
+- `maplibre-gl/dist/maplibre-gl.css` imported in `Evstation.tsx` for navigation/attribution control styling (Phase 2d)
+
+### Removed
+- `mapbox-gl` and `@urbica/react-map-gl` dependencies (Phase 2d)
+- `VITE_MAPBOX_TOKEN` and `VITE_MAPBOX_STYLE_URL` from `frontend/src/vite-env.d.ts` and `frontend/.env.example` — basemap no longer requires a token (Phase 2d, D2)
+
+### Changed
 - All frontend source converted from JavaScript to **TypeScript with full strict mode** (`strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`, `noFallthroughCasesInSwitch`, `noUnusedLocals`, `noUnusedParameters`); `frontend/tsconfig.json` + `frontend/tsconfig.node.json` added; `npx tsc --noEmit` exits 0 (Phase 2c, §5)
 - `frontend/src/index.js` → `frontend/src/main.tsx`; `frontend/src/evstation.js` → `frontend/src/Evstation.tsx` (capitalized to match component name); `ButtonGroup`, `LeftPane`, `RightPane`, `SearchFilterPane`, `ToolTip`, `PublishingPage` renamed to `.tsx`; `searchTerms` to `.ts` (Phase 2c)
 - `frontend/index.html` script tag updated `/src/main.jsx` → `/src/main.tsx` (Phase 2c)

@@ -1,5 +1,4 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { NavigationControl } from 'react-map-gl';
 
 type ButtonGroupProps = {
   handleZoomIn: () => void;
@@ -31,7 +30,6 @@ function ButtonGroup({
   return (
     <div>
       <div id="zoom-button-container" className="zoom-button-container">
-        <NavigationControl showCompass={false} showZoom={false} />
         <button className="zoom-in-button" onClick={handleZoomIn} disabled={zoomButtonDisabled}>확대</button>
       </div>
 

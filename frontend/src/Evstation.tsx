@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import MapboxGL from 'mapbox-gl';
 import DeckGL from '@deck.gl/react';
-import { InteractiveMap } from 'react-map-gl';
+import { Map } from 'react-map-gl/maplibre';
 import { ColumnLayer, IconLayer, PathLayer } from '@deck.gl/layers';
 import 'react-sliding-pane/dist/react-sliding-pane.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { LinearInterpolator } from '@deck.gl/core';
 import './evstation.css';
 import searchTerms from './searchTerms';
@@ -15,19 +15,9 @@ import ButtonGroup from './ButtonGroup';
 import type { ChargerFeature, ChargerProperties } from './types/charger';
 import type { FilterState, SortOrder, ViewState, ZoomTarget } from './types/filters';
 import { emptyFilterState } from './types/filters';
-
-MapboxGL.accessToken = import.meta.env.VITE_MAPBOX_TOKEN || '';
+import { INITIAL_VIEW_STATE, MAP_STYLE_URL } from './constants/viewport';
 
 const DATA_URL = `${import.meta.env.VITE_API_BASE_URL || ''}/charger`;
-
-const INITIAL_VIEW_STATE: ViewState = {
-  longitude: 127.7,
-  latitude: 36.1,
-  zoom: 7,
-  maxZoom: 16,
-  pitch: 57,
-  bearing: -15,
-};
 
 export default function Evstation() {
   const [paneIsOpen, setPaneIsOpen] = useState<boolean>(false);
@@ -54,7 +44,6 @@ export default function Evstation() {
   const [hasZoomedIn, setHasZoomedIn] = useState<ZoomTarget>(false);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
-  const [mapStyle] = useState<string>(import.meta.env.VITE_MAPBOX_STYLE_URL || '');
   const [theme] = useState<string>('');
   const [color] = useState<string>('');
   const [chargerNameSearchTerm, setChargerNameSearchTerm] = useState<string>('');
@@ -394,7 +383,7 @@ export default function Evstation() {
         controller={{ doubleClickZoom: false, scrollZoom: true, dragRotate: true, dragPan: true }}
         getCursor={() => 'default'}
       >
-        <InteractiveMap reuseMaps mapStyle={mapStyle} preventStyleDiffing={true} mapboxApiAccessToken={MapboxGL.accessToken}>
+        <Map reuseMaps mapStyle={MAP_STYLE_URL}>
           {tooltipInfo && <Tooltip tooltipInfo={tooltipInfo} theme={theme} />}
           <RightPane isOpen={rightPaneIsOpen} handleClosePane={handleClosePane} />
           <LeftPane
@@ -443,7 +432,7 @@ export default function Evstation() {
             minEfficiency={minEfficiency}
             maxEfficiency={maxEfficiency}
           />
-        </InteractiveMap>
+        </Map>
         <ButtonGroup
           handleZoomIn={handleZoomIn}
           zoomButtonDisabled={zoomButtonDisabled}
