@@ -6,6 +6,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 ## [Unreleased]
 
+### Changed
+- `Evstation.tsx`: deck.gl layer factories (`ColumnLayer`, `IconLayer`, `PathLayer`) and the `layers` array literal wrapped in `useMemo` with explicit dep arrays that exclude all filter-state fields — filter toggles produce **0 layer instance recreations** (Phase 2h, §5)
+- `Evstation.tsx`: `toggleShowAllData`, `handleColumnHover`, `sortResults`, `handleClosePane`, `handleHomeClick`, `handleAddressClick` wrapped in `useCallback` for stable identity across renders; downstream `SearchFilterPane` + `ButtonGroup` no longer receive churned function props (Phase 2h)
+- `Evstation.tsx`: `lastDataPoint` now passes through `useMemo` (was an inline derivation) so the `iconLayer` memo keys on a stable reference (Phase 2h)
+- `docs/BEFORE_AFTER.md`: bundle table extended through Phase 2h; new "Layer recreation" section documents the M = 0 result (Phase 2h)
+
 ### Added
 - `frontend/src/lib/csv.ts` — pure `objectToCSVRow`, `convertToCSV` (generic over `Record<string, unknown>` rows), `downloadCSV`; no React imports, importable + testable for Phase 4 (Phase 2g, §5)
 - `frontend/src/lib/geo.ts` — pure `getValidData` (filter NULL/0 coordinates), `getLatestDataPoint` (reduce by `systemtime`), `buildPaths` (dedupe consecutive lng/lat into a coordinate path); depends only on the `ChargerFeature` type (Phase 2g)

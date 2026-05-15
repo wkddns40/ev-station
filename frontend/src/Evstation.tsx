@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import DeckGL from '@deck.gl/react';
 import { Map } from 'react-map-gl/maplibre';
 import { ColumnLayer, IconLayer, PathLayer } from '@deck.gl/layers';
@@ -42,13 +42,31 @@ export default function Evstation() {
   const [elevationFactor, setElevationFactor] = useState<number>(0);
 
   const validData = useMemo<ChargerFeature[]>(() => getValidData(data), [data]);
-  const lastDataPoint: ChargerFeature | null = getLatestDataPoint(validData);
+  const lastDataPoint = useMemo<ChargerFeature | null>(() => getLatestDataPoint(validData), [validData]);
   const paths = useMemo<[number, number][]>(() => buildPaths(validData), [validData]);
 
   const { filteredResults, selectedPropertiesData, avgEfficiency, minEfficiency, maxEfficiency } =
     useFilteredChargers(data, filters);
 
-  const layers = [
+  const toggleShowAllData = useCallback(() => setShowAllData((prev) => !prev), []);
+
+  const handleColumnHover = useCallback(
+    // FIXME: type-me — deck.gl onHover info typing is complex; treat as any for now
+    ({ object, x, y }: { object: ChargerFeature | null; x: number; y: number }) => {
+      if (object) {
+        setTooltipInfo({
+          text: 'curr_speed - avg_speed: ' + object.properties.speed + 'km/h',
+          x,
+          y,
+        });
+      } else {
+        setTooltipInfo(null);
+      }
+    },
+    [],
+  );
+
+  const columnLayer = useMemo(() => (
     showAllData
       ? new ColumnLayer({
           id: 'column-layer',
@@ -61,22 +79,13 @@ export default function Evstation() {
           getPosition: (d: ChargerFeature) => d.geometry.coordinates,
           getFillColor: (d: ChargerFeature) => (d.properties.speed < 0 ? [0, 0, 255] : [255, 0, 0]),
           getElevation: (d: ChargerFeature) => Math.abs(d.properties.speed) * elevationFactor,
-          onClick: () => setShowAllData(!showAllData),
-          // FIXME: type-me — deck.gl onHover info typing is complex; treat as any for now
-          onHover: ({ object, x, y }: { object: ChargerFeature | null; x: number; y: number }) => {
-            if (object) {
-              setTooltipInfo({
-                text: 'curr_speed - avg_speed: ' + object.properties.speed + 'km/h',
-                x,
-                y,
-              });
-            } else {
-              setTooltipInfo(null);
-            }
-          },
+          onClick: toggleShowAllData,
+          onHover: handleColumnHover,
         })
-      : null,
+      : null
+  ), [showAllData, validData, elevationFactor, toggleShowAllData, handleColumnHover]);
 
+  const iconLayer = useMemo(() => (
     lastDataPoint
       ? new IconLayer({
           id: 'icon-layer',
@@ -89,10 +98,12 @@ export default function Evstation() {
           getIcon: () => 'marker',
           getSize: () => 55,
           getPosition: (d: ChargerFeature) => [d.geometry.coordinates[0] - 0.019, d.geometry.coordinates[1]],
-          onClick: () => setShowAllData(!showAllData),
+          onClick: toggleShowAllData,
         })
-      : null,
+      : null
+  ), [lastDataPoint, toggleShowAllData]);
 
+  const pathLayer = useMemo(() => (
     showAllData
       ? new PathLayer({
           id: 'path-layer',
@@ -103,8 +114,10 @@ export default function Evstation() {
           rounded: true,
           pickable: true,
         })
-      : null,
-  ];
+      : null
+  ), [showAllData, paths]);
+
+  const layers = useMemo(() => [columnLayer, iconLayer, pathLayer], [columnLayer, iconLayer, pathLayer]);
 
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | undefined;
@@ -127,17 +140,17 @@ export default function Evstation() {
     };
   }, [showAllData]);
 
-  const sortResults = (results: ChargerFeature[]): ChargerFeature[] =>
+  const sortResults = useCallback((results: ChargerFeature[]): ChargerFeature[] =>
     [...results].sort((a, b) => (filters.sortOrder === 'asc'
       ? a.properties.charging_efficiency - b.properties.charging_efficiency
-      : b.properties.charging_efficiency - a.properties.charging_efficiency));
+      : b.properties.charging_efficiency - a.properties.charging_efficiency)), [filters.sortOrder]);
 
-  const handleClosePane = (): void => {
+  const handleClosePane = useCallback((): void => {
     setPaneIsOpen(false);
     setRightPaneIsOpen(false);
-  };
+  }, []);
 
-  const handleHomeClick = (): void => {
+  const handleHomeClick = useCallback((): void => {
     setPaneIsOpen(false);
     setSelectedAddress(null);
     setShowSearch(false);
@@ -147,9 +160,9 @@ export default function Evstation() {
     viewport.setHasZoomedIn(false);
     setChargerNameSearchTerm('');
     dispatch({ type: 'RESET' });
-  };
+  }, [viewport, dispatch]);
 
-  const handleAddressClick = (chargerId: string): void => {
+  const handleAddressClick = useCallback((chargerId: string): void => {
     if (selectedAddress === chargerId) {
       setSelectedAddress(null);
       setPaneIsOpen(false);
@@ -166,7 +179,7 @@ export default function Evstation() {
         });
       }
     }
-  };
+  }, [selectedAddress, validData, viewport]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
