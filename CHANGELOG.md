@@ -7,6 +7,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 ## [Unreleased]
 
 ### Added
+- `frontend/src/hooks/useChargerData.ts` — `@tanstack/react-query` `useQuery` wrapping the `/charger` endpoint; derives `manufacturers`/`voltTypes`/`efficiencyValues` option arrays via `useMemo` passes over the feature list (Phase 2f, §5)
+- `frontend/src/hooks/useMapViewport.ts` — owns `mapViewState`, `zoomButtonDisabled`, `hasZoomedIn` + `handleZoomIn/Jeju/Out` callbacks; Seoul/Jeju target viewports + transition duration as module-level constants (Phase 2f)
+- `frontend/src/hooks/useFilteredChargers.ts` — memoized region/manufacturer/voltType/efficiency filter for both feature list + properties list + avg/min/max efficiency aggregates; dependency arrays key on individual filter fields so `sortOrder`/`filterStep` changes don't invalidate the memo (Phase 2f)
+- `QueryClientProvider` mounted in `main.tsx` (retry: 1, staleTime 60s, refetchOnWindowFocus: false) (Phase 2f)
+- `@tanstack/react-query ^5.100.10` dependency (Phase 2f)
+
+### Changed
+- `Evstation.tsx`: raw `fetch` + 4 useState (`data`, `manufacturers`, `voltTypes`, `efficiencyValues`) + initial-fetch `useEffect` replaced with one `useChargerData()` call; 3 viewport useStates + inline zoom closures replaced with one `useMapViewport()` call; inline `filteredResults` memo + `selectedPropertiesData` filter + avg/min/max derivation replaced with one `useFilteredChargers(data, filters)` call. `useState` count 23 → **16** (cumulative 30 → 16 across 2e + 2f) (Phase 2f)
+
+### Added
 - `frontend/src/state/filtersReducer.ts` — pure `filtersReducer` + `FilterAction` union (`SET_REGION`, `SET_MANUFACTURER`, `SET_VOLT_TYPE`, `SET_EFFICIENCY_VALUE`, `SET_FILTER_STEP`, `TOGGLE_SORT_ORDER`, `RESET`) with exhaustive `never` default (Phase 2e, §5)
 - `frontend/src/state/FiltersContext.tsx` — `FiltersProvider` (mounts `useReducer`) + `useFilters()` hook that throws on missing provider (Phase 2e)
 

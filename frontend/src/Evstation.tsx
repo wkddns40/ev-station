@@ -4,7 +4,6 @@ import { Map } from 'react-map-gl/maplibre';
 import { ColumnLayer, IconLayer, PathLayer } from '@deck.gl/layers';
 import 'react-sliding-pane/dist/react-sliding-pane.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { LinearInterpolator } from '@deck.gl/core';
 import './evstation.css';
 import searchTerms from './searchTerms';
 import RightPane from './RightPane';
@@ -13,14 +12,17 @@ import SearchFilterPane from './SearchFilterPane';
 import Tooltip, { type TooltipInfo } from './ToolTip';
 import ButtonGroup from './ButtonGroup';
 import type { ChargerFeature, ChargerProperties } from './types/charger';
-import type { ViewState, ZoomTarget } from './types/filters';
-import { INITIAL_VIEW_STATE, MAP_STYLE_URL } from './constants/viewport';
+import type { ViewState } from './types/filters';
+import { MAP_STYLE_URL } from './constants/viewport';
 import { useFilters } from './state/FiltersContext';
-
-const DATA_URL = `${import.meta.env.VITE_API_BASE_URL || ''}/charger`;
+import { useChargerData } from './hooks/useChargerData';
+import { useMapViewport } from './hooks/useMapViewport';
+import { useFilteredChargers } from './hooks/useFilteredChargers';
 
 export default function Evstation() {
   const { state: filters, dispatch } = useFilters();
+  const { data, manufacturers, voltTypes, efficiencyValues } = useChargerData();
+  const viewport = useMapViewport();
   const [paneIsOpen, setPaneIsOpen] = useState<boolean>(false);
   const [clickedChargerId, setClickedChargerId] = useState<string | null>(null);
   const [clickedChargerName, setClickedChargerName] = useState<string | null>(null);
@@ -28,15 +30,8 @@ export default function Evstation() {
   const [clickedMnfacrName, setClickedMnfacrName] = useState<string | null>(null);
   const [leftPaneIsOpen, setLeftPaneIsOpen] = useState<boolean>(false);
   const [rightPaneIsOpen, setRightPaneIsOpen] = useState<boolean>(false);
-  const [manufacturers, setManufacturers] = useState<string[]>([]);
-  const [data, setData] = useState<ChargerFeature[]>([]);
   const [showSearch, setShowSearch] = useState<boolean>(false);
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
-  const [mapViewState, setMapViewState] = useState<ViewState>(INITIAL_VIEW_STATE);
-  const [zoomButtonDisabled, setZoomButtonDisabled] = useState<boolean>(false);
-  const [voltTypes, setVoltTypes] = useState<string[]>([]);
-  const [efficiencyValues, setEfficiencyValues] = useState<number[]>([]);
-  const [hasZoomedIn, setHasZoomedIn] = useState<ZoomTarget>(false);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
   const [theme] = useState<string>('');
   const [color] = useState<string>('');
@@ -66,6 +61,9 @@ export default function Evstation() {
     }
     return acc;
   }, []), [validData]);
+
+  const { filteredResults, selectedPropertiesData, avgEfficiency, minEfficiency, maxEfficiency } =
+    useFilteredChargers(data, filters);
 
   const layers = [
     showAllData
@@ -156,21 +154,6 @@ export default function Evstation() {
     return dataArray.join(',') + '\r\n';
   };
 
-  const propertiesData = data.map((d) => d.properties);
-  const selectedPropertiesData = propertiesData.filter((item) => {
-    const regionMatch = filters.region
-      ? filters.region.includes('/')
-        ? filters.region.split('/').some((r) => item.address.includes(r))
-        : item.address.includes(filters.region)
-      : true;
-    const manufacturerMatch = filters.manufacturer ? item.mnfacr_name === filters.manufacturer : true;
-    const voltTypeMatch = filters.voltType ? item.volt_type === filters.voltType : true;
-    const efficiencyValueMatch = filters.efficiencyValue !== ''
-      ? Number(item.charging_efficiency) === Number(filters.efficiencyValue)
-      : true;
-    return regionMatch && manufacturerMatch && voltTypeMatch && efficiencyValueMatch;
-  });
-
   const convertToCSV = (rows: ChargerProperties[]): string => {
     let csvContent = '﻿';
     const first = rows[0];
@@ -201,41 +184,6 @@ export default function Evstation() {
       ? a.properties.charging_efficiency - b.properties.charging_efficiency
       : b.properties.charging_efficiency - a.properties.charging_efficiency));
 
-  const handleZoomIn = (): void => {
-    setZoomButtonDisabled(false);
-    const interpolator = new LinearInterpolator({ transitionProps: ['longitude', 'latitude', 'zoom'] });
-    setMapViewState((prev) => ({
-      ...prev,
-      longitude: 127.0053101,
-      latitude: 37.4199248,
-      zoom: 10.3,
-      transitionDuration: 800,
-      transitionInterpolator: interpolator,
-    }));
-  };
-
-  const handleZoomInJeju = (): void => {
-    setZoomButtonDisabled(true);
-    const interpolator = new LinearInterpolator({ transitionProps: ['longitude', 'latitude', 'zoom'] });
-    setMapViewState((prev) => ({
-      ...prev,
-      longitude: 126.5253101,
-      latitude: 33.3999248,
-      zoom: 10.2,
-      transitionDuration: 800,
-      transitionInterpolator: interpolator,
-    }));
-  };
-
-  const handleZoomOut = (): void => {
-    const interpolator = new LinearInterpolator({ transitionProps: ['longitude', 'latitude', 'zoom'] });
-    setMapViewState({
-      ...INITIAL_VIEW_STATE,
-      transitionDuration: 800,
-      transitionInterpolator: interpolator,
-    });
-  };
-
   const handleClosePane = (): void => {
     setPaneIsOpen(false);
     setRightPaneIsOpen(false);
@@ -246,10 +194,10 @@ export default function Evstation() {
     setSelectedAddress(null);
     setShowSearch(false);
     setLeftPaneIsOpen(false);
-    handleZoomOut();
-    setZoomButtonDisabled(false);
+    viewport.handleZoomOut();
+    viewport.setZoomButtonDisabled(false);
+    viewport.setHasZoomedIn(false);
     setChargerNameSearchTerm('');
-    setHasZoomedIn(false);
     dispatch({ type: 'RESET' });
   };
 
@@ -262,7 +210,7 @@ export default function Evstation() {
       setPaneIsOpen(true);
       const clickedPoint = validData.find((d) => d.properties.charger_id === chargerId);
       if (clickedPoint) {
-        setMapViewState({
+        viewport.setMapViewState({
           latitude: clickedPoint.geometry.coordinates[1],
           longitude: clickedPoint.geometry.coordinates[0],
           zoom: 10.3,
@@ -280,7 +228,7 @@ export default function Evstation() {
           setPaneIsOpen(false);
           setLeftPaneIsOpen(false);
         } else if (!leftPaneIsOpen) {
-          handleZoomOut();
+          viewport.handleZoomOut();
         }
       }
     };
@@ -292,22 +240,7 @@ export default function Evstation() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedAddress, leftPaneIsOpen]);
-
-  useEffect(() => {
-    fetch(DATA_URL)
-      .then((response) => response.json() as Promise<{ features: ChargerFeature[] }>)
-      .then((json) => {
-        const features = json.features;
-        setData(features);
-        setManufacturers(Array.from(new Set(features.map((f) => f.properties.mnfacr_name))).filter((v): v is string => Boolean(v)));
-        setVoltTypes(Array.from(new Set(features.map((f) => f.properties.volt_type))).filter((v): v is string => Boolean(v)));
-        setEfficiencyValues(
-          Array.from(new Set(features.map((f) => Number(f.properties.charging_efficiency)))).filter((v) => !Number.isNaN(v)),
-        );
-      })
-      .catch((error: unknown) => console.log(error));
-  }, []);
+  }, [selectedAddress, leftPaneIsOpen, viewport]);
 
   useEffect(() => {
     const selectedData = validData.find((d) => d.properties.charger_id === selectedAddress);
@@ -319,36 +252,12 @@ export default function Evstation() {
     }
   }, [selectedAddress, validData]);
 
-  const filteredResults = useMemo<ChargerFeature[]>(() => {
-    const region = filters.region;
-    const regionMatch = (feature: ChargerFeature): boolean => {
-      if (region === '') return true;
-      const address = feature.properties.address;
-      if (!address) return false;
-      return region.includes('/')
-        ? region.split('/').some((r) => address.includes(r))
-        : address.includes(region);
-    };
-    const manufacturerMatch = (feature: ChargerFeature): boolean =>
-      filters.manufacturer === '' || feature.properties.mnfacr_name === filters.manufacturer;
-    const voltTypeMatch = (feature: ChargerFeature): boolean =>
-      filters.voltType === '' || feature.properties.volt_type === filters.voltType;
-    const efficiencyMatch = (feature: ChargerFeature): boolean =>
-      filters.efficiencyValue === '' || Math.abs(feature.properties.charging_efficiency - Number(filters.efficiencyValue)) <= 0.0001;
-    return data.filter((f) => regionMatch(f) && manufacturerMatch(f) && voltTypeMatch(f) && efficiencyMatch(f));
-  }, [data, filters.region, filters.manufacturer, filters.voltType, filters.efficiencyValue]);
-
-  const efficiencyArray = filteredResults.map((result) => Number(result.properties.charging_efficiency));
-  const avgEfficiency = efficiencyArray.reduce((acc, val) => acc + val, 0) / efficiencyArray.length;
-  const minEfficiency = Math.min(...efficiencyArray);
-  const maxEfficiency = Math.max(...efficiencyArray);
-
   return (
     <div>
       <DeckGL
         layers={layers}
-        viewState={mapViewState}
-        onViewStateChange={({ viewState }: { viewState: ViewState }) => setMapViewState(viewState)}
+        viewState={viewport.mapViewState}
+        onViewStateChange={({ viewState }: { viewState: ViewState }) => viewport.setMapViewState(viewState)}
         controller={{ doubleClickZoom: false, scrollZoom: true, dragRotate: true, dragPan: true }}
         getCursor={() => 'default'}
       >
@@ -367,11 +276,11 @@ export default function Evstation() {
           <SearchFilterPane
             leftPaneIsOpen={leftPaneIsOpen}
             setLeftPaneIsOpen={setLeftPaneIsOpen}
-            handleZoomOut={handleZoomOut}
-            setHasZoomedIn={setHasZoomedIn}
-            handleZoomIn={handleZoomIn}
+            handleZoomOut={viewport.handleZoomOut}
+            setHasZoomedIn={viewport.setHasZoomedIn}
+            handleZoomIn={viewport.handleZoomIn}
             searchTerms={searchTerms}
-            handleZoomInJeju={handleZoomInJeju}
+            handleZoomInJeju={viewport.handleZoomInJeju}
             manufacturers={manufacturers}
             voltTypes={voltTypes}
             efficiencyValues={efficiencyValues}
@@ -380,7 +289,7 @@ export default function Evstation() {
             sortResults={sortResults}
             handleAddressClick={handleAddressClick}
             selectedAddress={selectedAddress}
-            hasZoomedIn={hasZoomedIn}
+            hasZoomedIn={viewport.hasZoomedIn}
             convertToCSV={convertToCSV}
             downloadCSV={downloadCSV}
             selectedPropertiesData={selectedPropertiesData}
@@ -390,9 +299,9 @@ export default function Evstation() {
           />
         </Map>
         <ButtonGroup
-          handleZoomIn={handleZoomIn}
-          zoomButtonDisabled={zoomButtonDisabled}
-          handleZoomInJeju={handleZoomInJeju}
+          handleZoomIn={viewport.handleZoomIn}
+          zoomButtonDisabled={viewport.zoomButtonDisabled}
+          handleZoomInJeju={viewport.handleZoomInJeju}
           handleHomeClick={handleHomeClick}
           showSearch={showSearch}
           setShowSearch={setShowSearch}
