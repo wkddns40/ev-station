@@ -7,6 +7,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 ## [Unreleased]
 
 ### Changed
+- All frontend source converted from JavaScript to **TypeScript with full strict mode** (`strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`, `noFallthroughCasesInSwitch`, `noUnusedLocals`, `noUnusedParameters`); `frontend/tsconfig.json` + `frontend/tsconfig.node.json` added; `npx tsc --noEmit` exits 0 (Phase 2c, §5)
+- `frontend/src/index.js` → `frontend/src/main.tsx`; `frontend/src/evstation.js` → `frontend/src/Evstation.tsx` (capitalized to match component name); `ButtonGroup`, `LeftPane`, `RightPane`, `SearchFilterPane`, `ToolTip`, `PublishingPage` renamed to `.tsx`; `searchTerms` to `.ts` (Phase 2c)
+- `frontend/index.html` script tag updated `/src/main.jsx` → `/src/main.tsx` (Phase 2c)
+- `frontend/vite.config.js` esbuild JSX-in-`.js` loader shim removed (no longer needed; all source is `.tsx`/`.ts`) (Phase 2c)
+- `SearchFilterPane` region-zoom handler dead-branch logic simplified (TS flagged `hasZoomedIn === 'jeju'` after a `!== 'seoul_gyeongin'` narrowing as an impossible-overlap comparison) (Phase 2c)
+
+### Added
+- `frontend/src/types/charger.ts` — `ChargerProperties`, `ChargerFeature`, `FeatureCollection` domain types (Phase 2c)
+- `frontend/src/types/filters.ts` — `FilterState`, `SortOrder`, `ViewState`, `ZoomTarget` + `emptyFilterState` constant (Phase 2c)
+- `frontend/src/vite-env.d.ts` — `ImportMetaEnv` typing for `VITE_*` vars + module shims for `*.css` and untyped deck.gl packages (Phase 2c)
+
+### Removed
+- `frontend/src/index.js`, `frontend/src/evstation.js`, and the legacy `.js` companions (replaced by `.tsx` versions) (Phase 2c)
+
+### Changed
 - Frontend build tool migrated from Create React App (`react-scripts` 5.0.1) to **Vite 5.4.21** with `@vitejs/plugin-react`; new `frontend/vite.config.js`, root-level `frontend/index.html` with `<script type="module" src="/src/main.jsx">`, package.json switched to `type: "module"` and the `dev`/`build`/`preview`/`lint`/`typecheck`/`test` script set (Phase 2b, §5)
 - All `process.env.REACT_APP_*` references replaced with `import.meta.env.VITE_*` (Mapbox token, Mapbox style URL, API base URL); `frontend/.env` and `frontend/.env.example` keys renamed accordingly (Phase 2b)
 - `process.env.PUBLIC_URL` in `iconAtlas` replaced with the absolute path `/car.png` (Vite serves `public/` at the site root) (Phase 2b)
