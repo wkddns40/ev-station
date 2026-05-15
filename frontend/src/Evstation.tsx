@@ -11,13 +11,15 @@ import LeftPane from './LeftPane';
 import SearchFilterPane from './SearchFilterPane';
 import Tooltip, { type TooltipInfo } from './ToolTip';
 import ButtonGroup from './ButtonGroup';
-import type { ChargerFeature, ChargerProperties } from './types/charger';
+import type { ChargerFeature } from './types/charger';
 import type { ViewState } from './types/filters';
 import { MAP_STYLE_URL } from './constants/viewport';
 import { useFilters } from './state/FiltersContext';
 import { useChargerData } from './hooks/useChargerData';
 import { useMapViewport } from './hooks/useMapViewport';
 import { useFilteredChargers } from './hooks/useFilteredChargers';
+import { convertToCSV, downloadCSV } from './lib/csv';
+import { buildPaths, getLatestDataPoint, getValidData } from './lib/geo';
 
 export default function Evstation() {
   const { state: filters, dispatch } = useFilters();
@@ -39,28 +41,9 @@ export default function Evstation() {
   const [showAllData, setShowAllData] = useState<boolean>(false);
   const [elevationFactor, setElevationFactor] = useState<number>(0);
 
-  const validData = useMemo<ChargerFeature[]>(() => data.filter((d) => {
-    const [lng, lat] = d.geometry.coordinates;
-    return (
-      (lng as unknown) !== 'NULL' &&
-      (lat as unknown) !== 'NULL' &&
-      Number(lng) !== 0 &&
-      Number(lat) !== 0
-    );
-  }), [data]);
-
-  const lastDataPoint: ChargerFeature | null = validData.length > 0
-    ? validData.reduce((prev, curr) => (prev.properties.systemtime > curr.properties.systemtime ? prev : curr))
-    : null;
-
-  const paths = useMemo<[number, number][]>(() => validData.reduce<[number, number][]>((acc, curr) => {
-    const last = acc[acc.length - 1];
-    const [lng, lat] = curr.geometry.coordinates;
-    if (!last || last[0] !== lng || last[1] !== lat) {
-      acc.push([lng, lat]);
-    }
-    return acc;
-  }, []), [validData]);
+  const validData = useMemo<ChargerFeature[]>(() => getValidData(data), [data]);
+  const lastDataPoint: ChargerFeature | null = getLatestDataPoint(validData);
+  const paths = useMemo<[number, number][]>(() => buildPaths(validData), [validData]);
 
   const { filteredResults, selectedPropertiesData, avgEfficiency, minEfficiency, maxEfficiency } =
     useFilteredChargers(data, filters);
@@ -143,41 +126,6 @@ export default function Evstation() {
       setElevationFactor(0);
     };
   }, [showAllData]);
-
-  const objectToCSVRow = (dataObject: Record<string, unknown>): string => {
-    const dataArray: string[] = [];
-    for (const o in dataObject) {
-      const raw = dataObject[o];
-      const innerValue = raw === null || raw === undefined ? '' : '"' + String(raw) + '"';
-      dataArray.push(innerValue);
-    }
-    return dataArray.join(',') + '\r\n';
-  };
-
-  const convertToCSV = (rows: ChargerProperties[]): string => {
-    let csvContent = '﻿';
-    const first = rows[0];
-    if (!first) return csvContent;
-    csvContent += objectToCSVRow(Object.fromEntries(Object.keys(first).map((k) => [k, k])));
-    for (const row of rows) {
-      csvContent += objectToCSVRow(row as unknown as Record<string, unknown>);
-    }
-    return csvContent;
-  };
-
-  const downloadCSV = (csvContent: string, fileName: string): void => {
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-
-    const clickEvent = new MouseEvent('click', { view: window, bubbles: true, cancelable: false });
-    link.dispatchEvent(clickEvent);
-
-    URL.revokeObjectURL(url);
-  };
 
   const sortResults = (results: ChargerFeature[]): ChargerFeature[] =>
     [...results].sort((a, b) => (filters.sortOrder === 'asc'

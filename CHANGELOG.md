@@ -7,6 +7,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 ## [Unreleased]
 
 ### Added
+- `frontend/src/lib/csv.ts` — pure `objectToCSVRow`, `convertToCSV` (generic over `Record<string, unknown>` rows), `downloadCSV`; no React imports, importable + testable for Phase 4 (Phase 2g, §5)
+- `frontend/src/lib/geo.ts` — pure `getValidData` (filter NULL/0 coordinates), `getLatestDataPoint` (reduce by `systemtime`), `buildPaths` (dedupe consecutive lng/lat into a coordinate path); depends only on the `ChargerFeature` type (Phase 2g)
+
+### Changed
+- `Evstation.tsx`: three inline closures (`objectToCSVRow`, `convertToCSV`, `downloadCSV`) and three inline data derivations (`validData` `useMemo` body, `lastDataPoint` reduce, `paths` `useMemo` body) replaced with named imports from `./lib/csv` and `./lib/geo`. `useMemo` wrappers retained — only the bodies move out (Phase 2g)
+
+### Added
 - `frontend/src/hooks/useChargerData.ts` — `@tanstack/react-query` `useQuery` wrapping the `/charger` endpoint; derives `manufacturers`/`voltTypes`/`efficiencyValues` option arrays via `useMemo` passes over the feature list (Phase 2f, §5)
 - `frontend/src/hooks/useMapViewport.ts` — owns `mapViewState`, `zoomButtonDisabled`, `hasZoomedIn` + `handleZoomIn/Jeju/Out` callbacks; Seoul/Jeju target viewports + transition duration as module-level constants (Phase 2f)
 - `frontend/src/hooks/useFilteredChargers.ts` — memoized region/manufacturer/voltType/efficiency filter for both feature list + properties list + avg/min/max efficiency aggregates; dependency arrays key on individual filter fields so `sortOrder`/`filterStep` changes don't invalidate the memo (Phase 2f)
