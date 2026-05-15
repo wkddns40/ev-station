@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { ChargerFeature } from '../types/charger';
+import { VITE_API_BASE_URL, VITE_DEMO_MODE } from '../lib/env';
 
-const DATA_URL = `${import.meta.env.VITE_API_BASE_URL || ''}/charger`;
+const DEMO_URL = '/sample-chargers.json';
+const API_URL = `${VITE_API_BASE_URL}/charger`;
+const DATA_URL = VITE_DEMO_MODE ? DEMO_URL : API_URL;
 
 type ChargerCollection = { features: ChargerFeature[] };
 
