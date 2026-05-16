@@ -153,7 +153,6 @@ ev-station/
 │   ├── lighthouse/                 # T3.7 reports + gap analysis
 │   └── screenshots/                # 1280×720 feature captures
 ├── .github/workflows/ci.yml        # lint + typecheck + test + build
-├── CHANGELOG.md                    # Keep a Changelog format
 ├── LICENSE                         # MIT
 └── REFACTOR_PLAN.md                # phase playbook (atomic tasks + locked decisions)
 ```

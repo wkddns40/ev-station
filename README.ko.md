@@ -153,7 +153,6 @@ ev-station/
 │   ├── lighthouse/                 # T3.7 리포트 + gap 분석
 │   └── screenshots/                # 1280×720 기능 캡처
 ├── .github/workflows/ci.yml        # lint + typecheck + test + build
-├── CHANGELOG.md                    # Keep a Changelog 형식
 ├── LICENSE                         # MIT
 └── REFACTOR_PLAN.md                # 페이즈 플레이북 (원자적 태스크 + 잠금 결정)
 ```
