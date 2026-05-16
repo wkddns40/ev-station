@@ -160,7 +160,7 @@ ev-station/
 
 ## 마이그레이션 이야기
 
-2023년 포트폴리오 프로젝트의 전면 리팩토링. 리팩토링 이전 소스는 `legacy` 브랜치 + `v0-legacy` 태그에 보존. 왜 리팩토링했는지, 무엇이 바뀌었는지, 무엇을 거부했는지, 무엇을 다르게 했을 것인지: [`docs/MIGRATION.md`](docs/MIGRATION.md).
+2023년 포트폴리오 프로젝트의 전면 리팩토링. 리팩토링 이전 소스는 `legacy` 브랜치 + `v0-legacy` 태그에 보존. [`docs/MIGRATION.md`](docs/MIGRATION.md).
 
 ADR(Architecture Decision Records):
 
@@ -171,7 +171,7 @@ ADR(Architecture Decision Records):
 
 ## 리팩토링 이전 상태
 
-리팩토링 이전 소스는 `legacy` 브랜치와 서명된 `v0-legacy` 태그에 보존되어 있음.
+리팩토링 이전 소스는 `legacy` 브랜치와 서명된 `v0-legacy` 태그에 보존.
 
 ```
 git fetch origin
