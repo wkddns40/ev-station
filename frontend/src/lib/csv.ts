@@ -25,9 +25,7 @@ export function downloadCSV(csvContent: string, fileName: string): void {
   const link = document.createElement('a');
   link.href = url;
   link.download = fileName;
-
-  const clickEvent = new MouseEvent('click', { view: window, bubbles: true, cancelable: false });
-  link.dispatchEvent(clickEvent);
+  link.click();
 
   URL.revokeObjectURL(url);
 }

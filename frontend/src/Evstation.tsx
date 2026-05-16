@@ -204,6 +204,9 @@ export default function Evstation() {
     };
   }, [selectedAddress, leftPaneIsOpen, viewport]);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
+  // Intentional: only update clicked* on a real selection so closing the pane
+  // (selectedAddress -> null) keeps previous charger info visible in LeftPane.
   useEffect(() => {
     const selectedData = validData.find((d) => d.properties.charger_id === selectedAddress);
     if (selectedData) {
@@ -213,6 +216,7 @@ export default function Evstation() {
       setClickedModelName(selectedData.properties.model_name);
     }
   }, [selectedAddress, validData]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <div>

@@ -2,6 +2,8 @@
 
 Real-time EV charging station dashboard for Korea with WebGL-accelerated geospatial visualization.
 
+[![CI](https://github.com/wkddns40/ev-station/actions/workflows/ci.yml/badge.svg)](https://github.com/wkddns40/ev-station/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-%E2%89%A570%25-brightgreen)](frontend/vitest.config.ts)
 [![Live demo](https://img.shields.io/badge/demo-ev--station--ten.vercel.app-blue?logo=vercel)](https://ev-station-ten.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript)](frontend/tsconfig.json)
