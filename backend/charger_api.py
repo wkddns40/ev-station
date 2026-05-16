@@ -1,11 +1,12 @@
-import os
-from dotenv import load_dotenv
-from flask import Flask, jsonify, make_response
-from flask_caching import Cache
-import mysql.connector
-import logging
 import json
+import logging
+import os
 from collections import OrderedDict
+
+import mysql.connector
+from dotenv import load_dotenv
+from flask import Flask, make_response
+from flask_caching import Cache
 from flask_cors import CORS
 
 load_dotenv()
@@ -27,7 +28,7 @@ def get_db_connection():
         )
         logging.debug('Connected to the database')
         return connection
-    except Exception as e:
+    except Exception:
         logging.error('Error connecting to the database:', exc_info=True)
         raise
 
@@ -35,7 +36,7 @@ def fetch_data():
     try:
         connection = get_db_connection()
         logging.debug('Connected to the database')
-    except Exception as e:
+    except Exception:
         logging.error('Error connecting to the database:', exc_info=True)
         raise
 

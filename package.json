@@ -1,0 +1,21 @@
+{
+  "name": "ev-station",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EV-STATION repo-root config for husky + lint-staged",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6"
+  },
+  "lint-staged": {
+    "frontend/**/*.{ts,tsx}": [
+      "bash -c 'cd frontend && eslint --fix \"$@\"' --"
+    ],
+    "backend/**/*.py": [
+      "bash -c 'cd backend && ruff check --fix \"$@\"' --"
+    ]
+  }
+}
