@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-05-17
+
+### Added
+- **Phase 5 — Polish + Portfolio Documentation:** rewritten `README.md` (badges row: CI, coverage, live demo, license, TypeScript, Vite; engineering highlights; tech-stack table; Mermaid system diagram; quickstart; scripts table; project structure tree); full Korean parity `README.ko.md` (mirrored section count); `docs/ARCHITECTURE.md` with system + data-flow Mermaid + state model + caching strategy + deployment topology + security boundaries; `docs/MIGRATION.md` with before/after metrics table + decisions narrative + lessons learned; four ADRs under `docs/decisions/` (001 Vite over CRA, 002 MapLibre over Mapbox, 003 useReducer + Context over Redux, 004 TanStack Query); `package.json` portfolio metadata (D7-clean, no email).
+- **Phase 4 — Tests + CI:** `frontend/vitest.config.ts` (jsdom env, 70% coverage gate on `src/lib/**` + `src/state/**`); `frontend/tests/setup.ts` (RTL cleanup); 50 frontend tests across 8 files (csv, csv-download, geo, env, filtersReducer, FiltersContext, useFilteredChargers, Phase 1 regressions B3–B6 converted from `xit` stubs to live assertions); `backend/pyproject.toml` (pytest + ruff config, 70% coverage gate); `backend/tests/conftest.py` (mysql.connector mocked at module load); 12 backend tests across `test_geojson.py` + `test_chargers.py`; `.github/workflows/ci.yml` (frontend: lint + typecheck + Vitest + Vite build; backend: ruff + pytest); repo-root `package.json` + `.husky/pre-commit` for husky + lint-staged; restored `frontend/eslint.config.js` (was on the rolled-back trailer-contamination PR).
+- **Phase 3 — Demo Mode + Live Deploy:** `backend/scripts/generate_mock.py` (deterministic 400-feature generator, seed 42, 50/30/20 region split across Seoul/Gyeonggi/Jeju); `frontend/public/sample-chargers.json` committed; `frontend/src/lib/env.ts` typed `VITE_DEMO_MODE` + `VITE_API_BASE_URL` accessor; `frontend/src/DemoBanner.tsx` (`aria-status` fixed banner gated by `VITE_DEMO_MODE`); 5 screenshots at 1280×720 under `docs/screenshots/`; `docs/lighthouse/` baseline + 2 split attempts + gap analysis README; production deploy on Vercel at https://ev-station-ten.vercel.app/.
+
+### Changed
+- **Phase 4 fix:** `Evstation.tsx` selected-charger sync `useEffect` wrapped with `react-hooks/set-state-in-effect` eslint-disable comment (intentional pattern: stale `clicked*` values preserved on pane close); `SearchFilterPane.tsx` `colorClass` if/else chain collapsed into a ternary to clear `no-useless-assignment`; `useFilteredChargers.ts` re-added `eslint-disable-line react-hooks/exhaustive-deps` comments after PR #17 rollback removed them.
+- **Phase 4 build fix (`a1d587d`):** restored `@deck.gl/layers` + `@deck.gl/core` to `frontend/package.json` deps (PR #4 dropped them as "unused"; Vite tree-shake meant local builds still worked because node_modules cached them as transitive deps of `@deck.gl/react`, but `npm ci` in CI exposed the gap).
+- **Phase 4 Vercel fix (`1f2cbfb`):** `frontend/vercel.json` pins `installCommand` to `npm ci --legacy-peer-deps` (Vitest 4 peer-deps Vite 6/7/8; the app pins Vite 5).
+- **Phase 3 perf hardening (PR #4):** `LeftPane` / `RightPane` / `SearchFilterPane` lazy-loaded via `React.lazy` + `<Suspense fallback={null}>`; `vite.config.js` adds `manualChunks` splitting `react` / `deckgl` / `maplibre` / `query` into separate vendor chunks (parallel fetch + cache hit ratio across app redeploys); `sourcemap: false` for production builds.
+- **Phase 3 deps cleanup (PR #4):** dropped 10 unused deps from `frontend/package.json` (`chart.js`, `react-chartjs-2`, `recharts`, `framer-motion`, `react-icons`, `react-modal`, `@emotion/react`, `@emotion/styled`, `@deck.gl/aggregation-layers`, `@deck.gl/geo-layers`); Vite tree-shake already excluded them — manifest cleanup only.
+- **Phase 3 demo wiring:** `useChargerData` data source branches on `VITE_DEMO_MODE` (true → `/sample-chargers.json`; false → `${VITE_API_BASE_URL}/charger`); `frontend/.env.example` adds `VITE_DEMO_MODE=false` documentation.
+- **Phase 3 console hygiene (PR #3):** `frontend/public/manifest.json` rewritten to drop `icons[]` array (`favicon.ico`, `logo192.png`, `logo512.png` were CRA template leftovers that never shipped); `frontend/index.html` adds `<link rel="icon" href="data:,">` to suppress favicon auto-fetch 404. Production console errors 2 → 0 (one pre-existing deck.gl null number warning remains, Phase 2c carryover, out of scope).
+
+### Fixed
+- **Phase 2 cleanup rollback (force-pushed 2026-05-15):** PR #17 squash-merge `5270ae2` contained Claude Code's default `Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>` trailer that violated D9 (sole `wkddns40` commit identity) — surfaced as a "Contributors 2" widget on the public repo. Master force-reset to `6afd18d`; local reflog + git gc pruned the orphan; project rule added to CLAUDE.md + AGENTS.md to block `Co-Authored-By` trailers on every future commit. GitHub Support ticket #4387125 opened to GC the orphan refs (`refs/pull/17/{head,merge}` + 4 orphan SHAs) and recompute the Contributors index on the old repo. Repository migrated from `wkddns40/ev-charging` (now private archive) to `wkddns40/ev-station` (public, widget = `wkddns40` only) on the same day.
+
+### Security
+- **Phase 5:** `package.json` author field is `wkddns40` only (no email substring) per D7.
+
+### Migration
+- **Canonical repo URL changed (2026-05-15):** `https://github.com/wkddns40/ev-charging` → `https://github.com/wkddns40/ev-station`. Old repo retained as private archive pending Support orphan GC; new repo holds the canonical history including the `legacy` branch and signed `v0-legacy` tag. REFACTOR_PLAN §12 D8 (canonical URL) intentionally left referencing the original repo per the locked-decision amendment gate — user-side decision held.
+
 ## [Unreleased]
 
 ### Changed
@@ -119,3 +144,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 - Removed hardcoded MySQL host/user/password/database from `api/charger_api.py` (T0.6, D6)
 - `gitleaks v8.30.1` full-history scan: 77 commits, no leaks found (T0.2)
 - `legacy` branch + signed `v0-legacy` tag preserve pre-refactor baseline before public exposure (T0.1g)
+
+## [0.1.0] - 2023-11-16
+
+Initial portfolio release (legacy). Preserved at branch `legacy` + signed tag `v0-legacy`.
+
+### Added
+- Create React App + Mapbox GL + deck.gl single-page dashboard for Korean EV chargers
+- Flask + MySQL backend (`api/charger_api.py`) returning `/charger` GeoJSON
+- Three sliding panes (search/filter, left info, right graph) on top of the map
+- Region zoom presets (Seoul, Gyeonggi/Incheon, Jeju) + filter cascade (region → manufacturer → 계량기 → efficiency) + CSV export
+

@@ -1,8 +1,28 @@
 {
-  "name": "evcharger",
-  "version": "0.1.0",
+  "name": "ev-station-dashboard",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "Real-time EV charging station dashboard for Korea with WebGL-accelerated geospatial visualization",
+  "author": "wkddns40",
+  "license": "MIT",
+  "homepage": "https://ev-station-ten.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wkddns40/ev-station"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "deck.gl",
+    "maplibre",
+    "geospatial",
+    "ev",
+    "dashboard",
+    "webgl",
+    "vite",
+    "korea"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
