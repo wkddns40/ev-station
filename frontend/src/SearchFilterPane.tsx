@@ -188,14 +188,8 @@ const SearchFilterPane = (props: SearchFilterPaneProps) => {
 
           <div className="result-content">
             {sortResults(filteredResults).map((result, index) => {
-              let colorClass = '';
-              if (result.properties.charging_efficiency >= 95) {
-                colorClass = '';
-              } else if (result.properties.charging_efficiency >= 90) {
-                colorClass = 'under95';
-              } else {
-                colorClass = 'under90';
-              }
+              const eff = result.properties.charging_efficiency;
+              const colorClass = eff >= 95 ? '' : eff >= 90 ? 'under95' : 'under90';
 
               return (
                 <div
