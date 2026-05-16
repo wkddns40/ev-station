@@ -79,4 +79,4 @@ Other locked decisions worth noting:
 - Tag: `v0-legacy` (signed, ed25519)
 - Single source file: `src/evstation.js` (606 lines) — kept untouched for reference.
 
-The repo was originally hosted at `wkddns40/ev-charging`. That repo is now a private archive (made private during the Phase 2 trailer-contamination cleanup; see CHANGELOG entry for 2026-05-15). The canonical URL is `wkddns40/ev-station`.
+The repo was originally hosted at `wkddns40/ev-charging`. That repo is now a private archive (made private during the Phase 2 trailer-contamination cleanup on 2026-05-15). The canonical URL is `wkddns40/ev-station`.
