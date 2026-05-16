@@ -2,19 +2,62 @@
 
 Real-time EV charging station dashboard for Korea with WebGL-accelerated geospatial visualization.
 
+[![Live demo](https://img.shields.io/badge/demo-ev--station--ten.vercel.app-blue?logo=vercel)](https://ev-station-ten.vercel.app/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript)](frontend/tsconfig.json)
+[![Vite](https://img.shields.io/badge/Vite-5.x-646cff?logo=vite)](frontend/vite.config.js)
+
 > 🇰🇷 한국어 README: [`README.ko.md`](README.ko.md)
 
-## Status
+## Live demo
 
-**Active refactor in progress.** This repository is being migrated to a modern stack:
+**👉 [ev-station-ten.vercel.app](https://ev-station-ten.vercel.app/)** — runs in demo mode against a 400-feature static snapshot (`frontend/public/sample-chargers.json`). No backend required.
 
-- React 18 + TypeScript (full strict) + Vite
-- deck.gl WebGL rendering with MapLibre + OpenFreeMap tiles
-- Flask backend with env-loaded config and connection pooling
-- Vitest + pytest + GitHub Actions CI
-- Live demo on Vercel with static mock data
+![Default map view](docs/screenshots/01-default-view.png)
 
-The full plan, phase atomic tasks, locked decisions, and verification checkboxes live in `REFACTOR_PLAN.md` at the repository root.
+## Features
+
+| | |
+|---|---|
+| ![Seoul zoom](docs/screenshots/02-seoul-zoom.png) | ![Jeju zoom](docs/screenshots/03-jeju-zoom.png) |
+| Region zoom — Seoul / 경기·인천 / Jeju | One-tap viewport presets |
+| ![Search filter pane](docs/screenshots/04-search-filter-pane.png) | ![Info pane](docs/screenshots/05-info-pane.png) |
+| Cascading filters (region → manufacturer → 계량기 → efficiency) | Stats summary (avg / min / max) + CSV download |
+
+## Stack
+
+- **Frontend:** React 18 + TypeScript (strict + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes`) + Vite
+- **Map:** MapLibre GL + OpenFreeMap Liberty tiles (no API key)
+- **Overlay:** deck.gl (ColumnLayer + IconLayer + PathLayer)
+- **State:** `useReducer` + Context (filters), TanStack Query (data)
+- **Backend (dev only):** Flask + env-loaded config + connection pooling
+- **Deploy:** Vercel (frontend), demo-mode static snapshot
+
+The full architectural plan, atomic-task ledger, and locked decisions live in [`REFACTOR_PLAN.md`](REFACTOR_PLAN.md).
+
+## Local development
+
+```bash
+# Frontend (dev mode hits the real backend)
+cd frontend
+npm ci
+npm run dev          # → http://localhost:3000
+
+# Frontend (demo mode — no backend needed)
+VITE_DEMO_MODE=true npm run dev
+
+# Backend (dev only — Flask)
+cd backend
+pip install -r requirements.txt
+python mock_server.py   # → http://localhost:5000
+```
+
+Regenerate the static demo snapshot:
+
+```bash
+python backend/scripts/generate_mock.py
+# writes frontend/public/sample-chargers.json (400 features, seed 42)
+```
 
 ## Pre-refactor state
 
