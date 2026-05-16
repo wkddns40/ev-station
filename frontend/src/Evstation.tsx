@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import DeckGL from '@deck.gl/react';
 import { Map } from 'react-map-gl/maplibre';
 import { ColumnLayer, IconLayer, PathLayer } from '@deck.gl/layers';
@@ -6,11 +6,12 @@ import 'react-sliding-pane/dist/react-sliding-pane.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './evstation.css';
 import searchTerms from './searchTerms';
-import RightPane from './RightPane';
-import LeftPane from './LeftPane';
-import SearchFilterPane from './SearchFilterPane';
 import Tooltip, { type TooltipInfo } from './ToolTip';
 import ButtonGroup from './ButtonGroup';
+
+const RightPane = lazy(() => import('./RightPane'));
+const LeftPane = lazy(() => import('./LeftPane'));
+const SearchFilterPane = lazy(() => import('./SearchFilterPane'));
 import type { ChargerFeature } from './types/charger';
 import type { ViewState } from './types/filters';
 import { MAP_STYLE_URL } from './constants/viewport';
@@ -224,40 +225,42 @@ export default function Evstation() {
       >
         <Map reuseMaps mapStyle={MAP_STYLE_URL}>
           {tooltipInfo && <Tooltip tooltipInfo={tooltipInfo} theme={theme} />}
-          <RightPane isOpen={rightPaneIsOpen} handleClosePane={handleClosePane} />
-          <LeftPane
-            isOpen={paneIsOpen}
-            handleClosePane={handleClosePane}
-            showChart={true}
-            clickedChargerName={clickedChargerName}
-            clickedChargerId={clickedChargerId}
-            clickedMnfacrName={clickedMnfacrName}
-            clickedModelName={clickedModelName}
-          />
-          <SearchFilterPane
-            leftPaneIsOpen={leftPaneIsOpen}
-            setLeftPaneIsOpen={setLeftPaneIsOpen}
-            handleZoomOut={viewport.handleZoomOut}
-            setHasZoomedIn={viewport.setHasZoomedIn}
-            handleZoomIn={viewport.handleZoomIn}
-            searchTerms={searchTerms}
-            handleZoomInJeju={viewport.handleZoomInJeju}
-            manufacturers={manufacturers}
-            voltTypes={voltTypes}
-            efficiencyValues={efficiencyValues}
-            setRightPaneIsOpen={setRightPaneIsOpen}
-            filteredResults={filteredResults}
-            sortResults={sortResults}
-            handleAddressClick={handleAddressClick}
-            selectedAddress={selectedAddress}
-            hasZoomedIn={viewport.hasZoomedIn}
-            convertToCSV={convertToCSV}
-            downloadCSV={downloadCSV}
-            selectedPropertiesData={selectedPropertiesData}
-            avgEfficiency={avgEfficiency}
-            minEfficiency={minEfficiency}
-            maxEfficiency={maxEfficiency}
-          />
+          <Suspense fallback={null}>
+            <RightPane isOpen={rightPaneIsOpen} handleClosePane={handleClosePane} />
+            <LeftPane
+              isOpen={paneIsOpen}
+              handleClosePane={handleClosePane}
+              showChart={true}
+              clickedChargerName={clickedChargerName}
+              clickedChargerId={clickedChargerId}
+              clickedMnfacrName={clickedMnfacrName}
+              clickedModelName={clickedModelName}
+            />
+            <SearchFilterPane
+              leftPaneIsOpen={leftPaneIsOpen}
+              setLeftPaneIsOpen={setLeftPaneIsOpen}
+              handleZoomOut={viewport.handleZoomOut}
+              setHasZoomedIn={viewport.setHasZoomedIn}
+              handleZoomIn={viewport.handleZoomIn}
+              searchTerms={searchTerms}
+              handleZoomInJeju={viewport.handleZoomInJeju}
+              manufacturers={manufacturers}
+              voltTypes={voltTypes}
+              efficiencyValues={efficiencyValues}
+              setRightPaneIsOpen={setRightPaneIsOpen}
+              filteredResults={filteredResults}
+              sortResults={sortResults}
+              handleAddressClick={handleAddressClick}
+              selectedAddress={selectedAddress}
+              hasZoomedIn={viewport.hasZoomedIn}
+              convertToCSV={convertToCSV}
+              downloadCSV={downloadCSV}
+              selectedPropertiesData={selectedPropertiesData}
+              avgEfficiency={avgEfficiency}
+              minEfficiency={minEfficiency}
+              maxEfficiency={maxEfficiency}
+            />
+          </Suspense>
         </Map>
         <ButtonGroup
           handleZoomIn={viewport.handleZoomIn}
