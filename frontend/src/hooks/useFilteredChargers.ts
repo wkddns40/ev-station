@@ -19,7 +19,22 @@ function matchesRegion(address: string | undefined, region: string): boolean {
   return address.includes(region);
 }
 
-export function useFilteredChargers(data: ChargerFeature[], filters: FilterState): UseFilteredChargersResult {
+function matchesSearch(props: ChargerProperties, term: string): boolean {
+  const q = term.trim().toLowerCase();
+  if (!q) return true;
+  return (
+    props.charger_name.toLowerCase().includes(q)
+    || props.charger_id.toLowerCase().includes(q)
+    || (props.address ?? '').toLowerCase().includes(q)
+    || (props.mnfacr_name ?? '').toLowerCase().includes(q)
+  );
+}
+
+export function useFilteredChargers(
+  data: ChargerFeature[],
+  filters: FilterState,
+  searchTerm: string = '',
+): UseFilteredChargersResult {
   // Deps keyed on individual filter fields (not the whole `filters` object) so
   // sortOrder / filterStep changes don't invalidate the filter memo.
   const filteredResults = useMemo<ChargerFeature[]>(() => {
@@ -30,9 +45,10 @@ export function useFilteredChargers(data: ChargerFeature[], filters: FilterState
       const voltTypeMatch = voltType === '' || feature.properties.volt_type === voltType;
       const efficiencyMatch = efficiencyValue === ''
         || Math.abs(feature.properties.charging_efficiency - Number(efficiencyValue)) <= 0.0001;
-      return regionMatch && manufacturerMatch && voltTypeMatch && efficiencyMatch;
+      const searchMatch = matchesSearch(feature.properties, searchTerm);
+      return regionMatch && manufacturerMatch && voltTypeMatch && efficiencyMatch && searchMatch;
     });
-  }, [data, filters.region, filters.manufacturer, filters.voltType, filters.efficiencyValue]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [data, filters.region, filters.manufacturer, filters.voltType, filters.efficiencyValue, searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectedPropertiesData = useMemo<ChargerProperties[]>(() => {
     const { region, manufacturer, voltType, efficiencyValue } = filters;
@@ -42,9 +58,10 @@ export function useFilteredChargers(data: ChargerFeature[], filters: FilterState
       const voltTypeMatch = voltType === '' || item.volt_type === voltType;
       const efficiencyValueMatch = efficiencyValue === ''
         || Number(item.charging_efficiency) === Number(efficiencyValue);
-      return regionMatch && manufacturerMatch && voltTypeMatch && efficiencyValueMatch;
+      const searchMatch = matchesSearch(item, searchTerm);
+      return regionMatch && manufacturerMatch && voltTypeMatch && efficiencyValueMatch && searchMatch;
     });
-  }, [data, filters.region, filters.manufacturer, filters.voltType, filters.efficiencyValue]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [data, filters.region, filters.manufacturer, filters.voltType, filters.efficiencyValue, searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { avgEfficiency, minEfficiency, maxEfficiency } = useMemo(() => {
     const values = filteredResults.map((r) => Number(r.properties.charging_efficiency));
