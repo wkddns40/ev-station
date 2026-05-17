@@ -36,12 +36,12 @@
 | | |
 |---|---|
 | ![검색 필터 패널](docs/screenshots/04-search-filter-pane.png) | ![정보 패널](docs/screenshots/05-info-pane.png) |
-| 단계별 필터(지역 → 제조사 → 계량기 → 효율) | 통계 요약(평균/최소/최대) + CSV 다운로드 |
+| 단계별 필터 + 이름/ID/주소/제조사 전문 검색; 필터링된 모든 충전소에 녹색 핀 마커 표출 | 핀 또는 리스트 항목 클릭 → Charging Station 사이드 패널 + 자동 fly-to; 검색 박스 Enter 시 매치된 결과 bbox 자동 fit |
 
 ## 엔지니어링 하이라이트
 
 - **풀 strict TypeScript** — `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` 전 소스 적용. 앱 코드에 `any` 0건. deck.gl 미타입 모듈은 `vite-env.d.ts` 한 곳에 격리.
-- **메모이즈된 레이어 팩토리** — deck.gl `ColumnLayer` / `IconLayer` / `PathLayer` 재생성이 컴포넌트 전체 상태가 아닌 실제 데이터 dep(`validData`, `lastDataPoint`, `paths`)에 키잉됨. 렌더 결과에 영향 없는 필터 토글은 레이어 churn 0.
+- **메모이즈된 레이어 팩토리** — deck.gl `ColumnLayer` / `IconLayer` (×3: 충전소 핀, 데모 카, 선택 강조) / `PathLayer` 재생성이 컴포넌트 전체 상태가 아닌 실제 데이터 dep(`filteredResults`, `validData`, `lastDataPoint`, `selectedAddress`, `paths`)에 키잉됨. 렌더 결과에 영향 없는 필터 토글은 레이어 churn 0.
 - **깨지기 어려운 상태** — 필터용 `useReducer` + Context, action union에 `_exhaustive: never` 가드. 레거시가 사용하던 필터 섀도우 상태 동기화용 sync `useEffect` 3개 제거. 업데이트는 원자적으로 반영됨.
 - **기본 정적 데모** — `VITE_DEMO_MODE=true`로 데이터 소스를 결정론적 400 피처 스냅샷(`backend/scripts/generate_mock.py`, seed 42)으로 전환. 라이브 데모는 백엔드 없이 작동. 프로덕션 백엔드 코드는 `backend/charger_api.py`에 그대로 보존.
 - **CI가 머지 게이트** — 모든 PR이 frontend lint + typecheck + Vitest 커버리지(`src/lib/**` + `src/state/**` ≥70%) + Vite build, backend ruff + pytest 커버리지(≥70%)를 실행. Vercel은 PR별 프리뷰 배포.
@@ -55,7 +55,7 @@
 | UI | React 18 |
 | 지도 | MapLibre GL + react-map-gl v8 (`react-map-gl/maplibre` 서브경로) |
 | 타일 | [OpenFreeMap Liberty](https://openfreemap.org) — API 키 불필요 |
-| 오버레이 | deck.gl 8 (ColumnLayer + IconLayer + PathLayer) |
+| 오버레이 | deck.gl 8 (ColumnLayer + multi-IconLayer + PathLayer) |
 | 상태 | `useReducer` + Context(필터), TanStack Query 5(데이터) |
 | 테스트 | Vitest 4 + `@testing-library/react` 16(프론트), pytest 8 + pytest-flask(백엔드) |
 | CI | GitHub Actions(프론트 + 백엔드) |
@@ -124,7 +124,7 @@ ev-station/
 │   ├── src/
 │   │   ├── lib/           # 순수 유틸 (csv, geo, env) — 테스트 대상
 │   │   ├── state/         # filtersReducer + Context — 테스트 대상
-│   │   ├── hooks/         # useChargerData, useMapViewport, useFilteredChargers, useChargerLayers
+│   │   ├── hooks/         # useChargerData, useMapViewport, useFilteredChargers
 │   │   ├── types/         # charger + filters 도메인 타입
 │   │   ├── constants/     # viewport / 지도 스타일 URL
 │   │   ├── DemoBanner.tsx
@@ -133,7 +133,8 @@ ev-station/
 │   │   └── main.tsx
 │   ├── public/
 │   │   ├── sample-chargers.json    # 400 피처 데모 스냅샷
-│   │   └── car.png                 # deck.gl IconLayer 아틀라스
+│   │   ├── car.png                 # deck.gl IconLayer 아틀라스 (데모 카 cycling)
+│   │   └── charger-icon.png        # deck.gl IconLayer 아틀라스 (녹색 충전소 핀 마커)
 │   ├── tests/setup.ts              # Vitest + RTL 설정
 │   ├── eslint.config.js · vite.config.js · vitest.config.ts · vercel.json
 │   └── package.json
