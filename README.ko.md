@@ -35,8 +35,6 @@
 
 | | |
 |---|---|
-| ![서울 줌](docs/screenshots/02-seoul-zoom.png) | ![제주 줌](docs/screenshots/03-jeju-zoom.png) |
-| 지역 줌 — 서울 / 경기·인천 / 제주 | 원터치 뷰포트 프리셋 |
 | ![검색 필터 패널](docs/screenshots/04-search-filter-pane.png) | ![정보 패널](docs/screenshots/05-info-pane.png) |
 | 단계별 필터(지역 → 제조사 → 계량기 → 효율) | 통계 요약(평균/최소/최대) + CSV 다운로드 |
 
