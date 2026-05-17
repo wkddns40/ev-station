@@ -15,7 +15,6 @@
 
 - [라이브 데모](#라이브-데모)
 - [기능](#기능)
-- [엔지니어링 하이라이트](#엔지니어링-하이라이트)
 - [기술 스택](#기술-스택)
 - [아키텍처](#아키텍처)
 - [로컬 개발](#로컬-개발)
@@ -36,14 +35,6 @@
 |---|---|
 | ![검색 필터 패널](docs/screenshots/04-search-filter-pane.png) | ![정보 패널](docs/screenshots/05-info-pane.png) |
 | 단계별 필터 + 이름/ID/주소/제조사 전문 검색; 필터링된 모든 충전소에 녹색 핀 마커 표출 | 핀 또는 리스트 항목 클릭 → Charging Station 사이드 패널 + 자동 fly-to; 검색 박스 Enter 시 매치된 결과 bbox 자동 fit |
-
-## 엔지니어링 하이라이트
-
-- **풀 strict TypeScript** — `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` 전 소스 적용. 앱 코드에 `any` 0건. deck.gl 미타입 모듈은 `vite-env.d.ts` 한 곳에 격리.
-- **메모이즈된 레이어 팩토리** — deck.gl `ColumnLayer` / `IconLayer` (×3: 충전소 핀, 데모 카, 선택 강조) / `PathLayer` 재생성이 컴포넌트 전체 상태가 아닌 실제 데이터 dep(`filteredResults`, `validData`, `lastDataPoint`, `selectedAddress`, `paths`)에 키잉됨. 렌더 결과에 영향 없는 필터 토글은 레이어 churn 0.
-- **깨지기 어려운 상태** — 필터용 `useReducer` + Context, action union에 `_exhaustive: never` 가드. 레거시가 사용하던 필터 섀도우 상태 동기화용 sync `useEffect` 3개 제거. 업데이트는 원자적으로 반영.
-- **기본 정적 데모** — `VITE_DEMO_MODE=true`로 데이터 소스를 결정론적 400 피처 스냅샷(`backend/scripts/generate_mock.py`, seed 42)으로 전환. 라이브 데모는 백엔드 없이 작동. 프로덕션 백엔드 코드는 `backend/charger_api.py`에 그대로 보존.
-- **CI가 머지 게이트** — 모든 PR이 frontend lint + typecheck + Vitest 커버리지(`src/lib/**` + `src/state/**` ≥70%) + Vite build, backend ruff + pytest 커버리지(≥70%)를 실행. Vercel은 PR별 프리뷰 배포.
 
 ## 기술 스택
 
