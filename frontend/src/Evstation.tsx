@@ -67,7 +67,22 @@ export default function Evstation() {
   const paths = useMemo<[number, number][]>(() => buildPaths(validData), [validData]);
 
   const { filteredResults, selectedPropertiesData, avgEfficiency, minEfficiency, maxEfficiency } =
-    useFilteredChargers(data, filters);
+    useFilteredChargers(data, filters, chargerNameSearchTerm);
+
+  // Auto fly-to when filter/search narrows to a single match.
+  // Use stable setMapViewState ref (viewport object identity changes every render).
+  const setMapViewStateStable = viewport.setMapViewState;
+  useEffect(() => {
+    if (filteredResults.length !== 1) return;
+    const c = filteredResults[0];
+    if (!c) return;
+    setMapViewStateStable({
+      latitude: c.geometry.coordinates[1],
+      longitude: c.geometry.coordinates[0],
+      zoom: 14.6,
+      pitch: 0,
+    });
+  }, [filteredResults, setMapViewStateStable]);
 
   const toggleShowAllData = useCallback(() => setShowAllData((prev) => !prev), []);
 
@@ -86,6 +101,25 @@ export default function Evstation() {
     },
     [],
   );
+
+  const handleAddressClick = useCallback((chargerId: string): void => {
+    if (selectedAddress === chargerId) {
+      setSelectedAddress(null);
+      setPaneIsOpen(false);
+      return;
+    }
+    setSelectedAddress(chargerId);
+    setPaneIsOpen(true);
+    const clickedPoint = validData.find((d) => d.properties.charger_id === chargerId);
+    if (clickedPoint) {
+      viewport.setMapViewState({
+        latitude: clickedPoint.geometry.coordinates[1],
+        longitude: clickedPoint.geometry.coordinates[0],
+        zoom: 14.6,
+        pitch: 0,
+      });
+    }
+  }, [selectedAddress, validData, viewport]);
 
   const columnLayer = useMemo(() => (
     showAllData
@@ -111,7 +145,7 @@ export default function Evstation() {
       ? new IconLayer({
           id: 'icon-layer',
           data: [lastDataPoint],
-          pickable: true,
+          pickable: false,
           iconAtlas: '/car.png',
           iconMapping: {
             marker: { x: 10, y: 150, width: 512, height: 512, mask: false },
@@ -119,10 +153,9 @@ export default function Evstation() {
           getIcon: () => 'marker',
           getSize: () => 55,
           getPosition: (d: ChargerFeature) => [d.geometry.coordinates[0] - 0.019, d.geometry.coordinates[1]],
-          onClick: toggleShowAllData,
         })
       : null
-  ), [lastDataPoint, toggleShowAllData]);
+  ), [lastDataPoint]);
 
   const pathLayer = useMemo(() => (
     showAllData
@@ -138,7 +171,49 @@ export default function Evstation() {
       : null
   ), [showAllData, paths]);
 
-  const layers = useMemo(() => [columnLayer, iconLayer, pathLayer], [columnLayer, iconLayer, pathLayer]);
+  const allChargersLayer = useMemo(() => {
+    if (filteredResults.length === 0) return null;
+    return new IconLayer({
+      id: 'all-chargers-layer',
+      data: filteredResults,
+      pickable: true,
+      iconAtlas: '/charger-icon.png',
+      iconMapping: {
+        marker: { x: 0, y: 0, width: 200, height: 280, anchorX: 100, anchorY: 262, mask: false },
+      },
+      getIcon: () => 'marker',
+      sizeUnits: 'pixels',
+      getSize: () => 32,
+      getPosition: (d: ChargerFeature) => d.geometry.coordinates,
+      onClick: ({ object }: { object: ChargerFeature | null }) => {
+        if (object) handleAddressClick(object.properties.charger_id);
+      },
+    });
+  }, [filteredResults, handleAddressClick]);
+
+  const selectedLayer = useMemo(() => {
+    if (!selectedAddress) return null;
+    const selectedFeature = validData.find((d) => d.properties.charger_id === selectedAddress);
+    if (!selectedFeature) return null;
+    return new IconLayer({
+      id: 'selected-marker-layer',
+      data: [selectedFeature],
+      pickable: false,
+      iconAtlas: '/charger-icon.png',
+      iconMapping: {
+        marker: { x: 0, y: 0, width: 200, height: 280, anchorX: 100, anchorY: 262, mask: false },
+      },
+      getIcon: () => 'marker',
+      sizeUnits: 'pixels',
+      getSize: () => 56,
+      getPosition: (d: ChargerFeature) => d.geometry.coordinates,
+    });
+  }, [selectedAddress, validData]);
+
+  const layers = useMemo(
+    () => [allChargersLayer, columnLayer, iconLayer, pathLayer, selectedLayer],
+    [allChargersLayer, columnLayer, iconLayer, pathLayer, selectedLayer],
+  );
 
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | undefined;
@@ -171,6 +246,32 @@ export default function Evstation() {
     setRightPaneIsOpen(false);
   }, []);
 
+  const handleSearchSubmit = useCallback((): void => {
+    if (filteredResults.length <= 1) return;
+    let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+    for (const f of filteredResults) {
+      const [lng, lat] = f.geometry.coordinates;
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+    }
+    const centerLng = (minLng + maxLng) / 2;
+    const centerLat = (minLat + maxLat) / 2;
+    const lngSpan = Math.max(maxLng - minLng, 0.001);
+    const latSpan = Math.max(maxLat - minLat, 0.001);
+    const cosLat = Math.cos((centerLat * Math.PI) / 180);
+    const zLng = Math.log2((1024 * 360 * cosLat) / (256 * lngSpan));
+    const zLat = Math.log2((720 * 180) / (256 * latSpan));
+    const zoom = Math.max(Math.min(zLng, zLat, 16) - 0.5, 4);
+    viewport.setMapViewState({
+      latitude: centerLat,
+      longitude: centerLng,
+      zoom,
+      pitch: 0,
+    });
+  }, [filteredResults, viewport]);
+
   const handleHomeClick = useCallback((): void => {
     setPaneIsOpen(false);
     setSelectedAddress(null);
@@ -182,25 +283,6 @@ export default function Evstation() {
     setChargerNameSearchTerm('');
     dispatch({ type: 'RESET' });
   }, [viewport, dispatch]);
-
-  const handleAddressClick = useCallback((chargerId: string): void => {
-    if (selectedAddress === chargerId) {
-      setSelectedAddress(null);
-      setPaneIsOpen(false);
-    } else {
-      setSelectedAddress(chargerId);
-      setPaneIsOpen(true);
-      const clickedPoint = validData.find((d) => d.properties.charger_id === chargerId);
-      if (clickedPoint) {
-        viewport.setMapViewState({
-          latitude: clickedPoint.geometry.coordinates[1],
-          longitude: clickedPoint.geometry.coordinates[0],
-          zoom: 10.3,
-          pitch: 60,
-        });
-      }
-    }
-  }, [selectedAddress, validData, viewport]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
@@ -244,7 +326,7 @@ export default function Evstation() {
         layers={layers}
         viewState={viewport.mapViewState}
         onViewStateChange={({ viewState }: { viewState: ViewState }) => viewport.setMapViewState(viewState)}
-        controller={{ doubleClickZoom: false, scrollZoom: true, dragRotate: true, dragPan: true }}
+        controller={{ doubleClickZoom: false, scrollZoom: true, dragRotate: false, dragPan: true }}
         getCursor={() => 'default'}
       >
         <Map reuseMaps mapStyle={MAP_STYLE_URL}>
@@ -287,15 +369,13 @@ export default function Evstation() {
           </Suspense>
         </Map>
         <ButtonGroup
-          handleZoomIn={viewport.handleZoomIn}
-          zoomButtonDisabled={viewport.zoomButtonDisabled}
-          handleZoomInJeju={viewport.handleZoomInJeju}
           handleHomeClick={handleHomeClick}
           showSearch={showSearch}
           setShowSearch={setShowSearch}
           setLeftPaneIsOpen={setLeftPaneIsOpen}
           chargerNameSearchTerm={chargerNameSearchTerm}
           setChargerNameSearchTerm={setChargerNameSearchTerm}
+          onSearchSubmit={handleSearchSubmit}
         />
         <div className="title-container">
           <h1 className="title-main" style={{ color }}>EV Station Dashboard</h1>

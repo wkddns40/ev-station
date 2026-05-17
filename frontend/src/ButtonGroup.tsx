@@ -2,9 +2,6 @@ import type { Dispatch, SetStateAction } from 'react';
 import { useFilters } from './state/FiltersContext';
 
 type ButtonGroupProps = {
-  handleZoomIn: () => void;
-  zoomButtonDisabled: boolean;
-  handleZoomInJeju: () => void;
   handleHomeClick: () => void;
   showSearch: boolean;
   setShowSearch: Dispatch<SetStateAction<boolean>>;
@@ -12,12 +9,10 @@ type ButtonGroupProps = {
   leftPaneIsOpen?: boolean;
   chargerNameSearchTerm: string;
   setChargerNameSearchTerm: Dispatch<SetStateAction<string>>;
+  onSearchSubmit: () => void;
 };
 
 function ButtonGroup({
-  handleZoomIn,
-  zoomButtonDisabled,
-  handleZoomInJeju,
   handleHomeClick,
   showSearch,
   setShowSearch,
@@ -25,19 +20,11 @@ function ButtonGroup({
   leftPaneIsOpen,
   chargerNameSearchTerm,
   setChargerNameSearchTerm,
+  onSearchSubmit,
 }: ButtonGroupProps) {
   const { dispatch } = useFilters();
   return (
     <div>
-      <div id="zoom-button-container" className="zoom-button-container">
-        <button className="zoom-in-button" onClick={handleZoomIn} disabled={zoomButtonDisabled}>확대</button>
-      </div>
-
-      <div className="jeju-button-container">
-        <button className="jeju-button" onClick={handleZoomInJeju} disabled={zoomButtonDisabled}>
-          Jeju
-        </button>
-      </div>
       <button onClick={() => handleHomeClick()} className="home-button">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 1.5l10 9v11h-7v-6h-6v6h-7v-11l10-9z" />
@@ -64,6 +51,7 @@ function ButtonGroup({
             type="text"
             value={chargerNameSearchTerm}
             onChange={(e) => setChargerNameSearchTerm(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') onSearchSubmit(); }}
             placeholder="검색할 충전소 입력"
             className="search-input"
           />

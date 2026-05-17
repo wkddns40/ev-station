@@ -7,8 +7,8 @@ import { INITIAL_VIEW_STATE } from '../constants/viewport';
 const ZOOM_TRANSITION_PROPS = ['longitude', 'latitude', 'zoom'] as const;
 const ZOOM_TRANSITION_DURATION = 800;
 
-const SEOUL_VIEW = { longitude: 127.0053101, latitude: 37.4199248, zoom: 10.3 };
-const JEJU_VIEW = { longitude: 126.5253101, latitude: 33.3999248, zoom: 10.2 };
+const SEOUL_VIEW = { longitude: 127.0053101, latitude: 37.4199248, zoom: 14.6 };
+const JEJU_VIEW = { longitude: 126.5253101, latitude: 33.3999248, zoom: 14.46 };
 
 export type UseMapViewportResult = {
   mapViewState: ViewState;
