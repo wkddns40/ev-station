@@ -156,10 +156,6 @@ ev-station/
 └── REFACTOR_PLAN.md                # 페이즈 플레이북 (원자적 태스크 + 잠금 결정)
 ```
 
-## 마이그레이션 이야기
-
-2023년 포트폴리오 프로젝트의 전면 리팩토링. 리팩토링 이전 소스는 `legacy` 브랜치 + `v0-legacy` 태그에 보존. [`docs/MIGRATION.md`](docs/MIGRATION.md).
-
 ADR(Architecture Decision Records):
 
 - [ADR 001 — CRA 대신 Vite](docs/decisions/001-vite-over-cra.md)
