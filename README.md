@@ -36,12 +36,12 @@ Real-time EV charging station dashboard for Korea with WebGL-accelerated geospat
 | | |
 |---|---|
 | ![Search filter pane](docs/screenshots/04-search-filter-pane.png) | ![Info pane](docs/screenshots/05-info-pane.png) |
-| Cascading filters (region → manufacturer → 계량기 → efficiency) | Stats summary (avg / min / max) + CSV download |
+| Cascading filters + full-text search across name/id/address/manufacturer; green charger pin markers on every filtered result | Click any pin (or list row) → Charging Station side panel + auto fly-to; Enter on search fits viewport to all matches |
 
 ## Engineering highlights
 
 - **Full strict TypeScript** — `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` across 100% of source. Zero `any` in app code; deck.gl's untyped modules are isolated behind a single `vite-env.d.ts` shim.
-- **Memoized layer factory** — deck.gl `ColumnLayer` / `IconLayer` / `PathLayer` recreation is keyed on the actual data deps (`validData`, `lastDataPoint`, `paths`), not the whole component state. Filter toggles that don't change the rendered set produce zero layer churn.
+- **Memoized layer factory** — deck.gl `ColumnLayer` / `IconLayer` (×3: charger pins, cycling demo car, selected highlight) / `PathLayer` recreation is keyed on actual data deps (`filteredResults`, `validData`, `lastDataPoint`, `selectedAddress`, `paths`), not the whole component state. Filter toggles that don't change the rendered set produce zero layer churn.
 - **State that's hard to break** — `useReducer` + Context for filters with an `_exhaustive: never` guard on the action union. The 3 sync `useEffect`s the legacy codebase used to keep filter shadow-state in sync are gone; updates land atomically.
 - **Static demo by default** — `VITE_DEMO_MODE=true` swaps the data source to a deterministic 400-feature snapshot (`backend/scripts/generate_mock.py`, seed 42). Live demo runs with no backend at all; production backend code lives untouched in `backend/charger_api.py`.
 - **CI is the merge gate** — every PR runs lint + typecheck + Vitest with coverage (≥70% on `src/lib/**` + `src/state/**`) + Vite build for the frontend, and ruff + pytest with coverage (≥70%) for the backend. Vercel deploys a preview per PR.
@@ -55,7 +55,7 @@ Real-time EV charging station dashboard for Korea with WebGL-accelerated geospat
 | UI | React 18 |
 | Map | MapLibre GL + react-map-gl v8 (`react-map-gl/maplibre` subpath) |
 | Map tiles | [OpenFreeMap Liberty](https://openfreemap.org) — no API key |
-| Overlay | deck.gl 8 (ColumnLayer + IconLayer + PathLayer) |
+| Overlay | deck.gl 8 (ColumnLayer + multi-IconLayer + PathLayer) |
 | State | `useReducer` + Context (filters), TanStack Query 5 (data) |
 | Tests | Vitest 4 + `@testing-library/react` 16 (frontend), pytest 8 + pytest-flask (backend) |
 | CI | GitHub Actions (frontend + backend) |
@@ -124,7 +124,7 @@ ev-station/
 │   ├── src/
 │   │   ├── lib/           # pure utilities (csv, geo, env) — tested
 │   │   ├── state/         # filtersReducer + Context — tested
-│   │   ├── hooks/         # useChargerData, useMapViewport, useFilteredChargers, useChargerLayers
+│   │   ├── hooks/         # useChargerData, useMapViewport, useFilteredChargers
 │   │   ├── types/         # charger + filters domain types
 │   │   ├── constants/     # viewport / map style URL
 │   │   ├── DemoBanner.tsx
@@ -133,7 +133,8 @@ ev-station/
 │   │   └── main.tsx
 │   ├── public/
 │   │   ├── sample-chargers.json    # 400-feature demo snapshot
-│   │   └── car.png                 # deck.gl IconLayer atlas
+│   │   ├── car.png                 # deck.gl IconLayer atlas (cycling demo car)
+│   │   └── charger-icon.png        # deck.gl IconLayer atlas (green charger pin marker)
 │   ├── tests/setup.ts              # Vitest + RTL setup
 │   ├── eslint.config.js · vite.config.js · vitest.config.ts · vercel.json
 │   └── package.json
