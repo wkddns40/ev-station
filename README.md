@@ -145,14 +145,12 @@ ev-station/
 │   └── pyproject.toml              # ruff + pytest 커버리지 게이트
 ├── docs/
 │   ├── ARCHITECTURE.md             # 시스템 + 데이터 흐름 + 상태 모델
-│   ├── MIGRATION.md                # before/after + 결정 내러티브 + 교훈
 │   ├── BEFORE_AFTER.md             # 번들 메트릭
 │   ├── decisions/                  # ADR (001–004)
 │   ├── lighthouse/                 # T3.7 리포트 + gap 분석
 │   └── screenshots/                # 1280×720 기능 캡처
 ├── .github/workflows/ci.yml        # lint + typecheck + test + build
-├── LICENSE                         # MIT
-└── REFACTOR_PLAN.md                # 페이즈 플레이북 (원자적 태스크 + 잠금 결정)
+└── LICENSE                         # MIT
 ```
 
 ADR(Architecture Decision Records):
