@@ -15,16 +15,35 @@ from pathlib import Path
 SEED = 42
 TARGET_COUNT = 400
 
-REGIONS = [
-    ("seoul",    0.50, (126.76, 127.18), (37.43, 37.69), "서울특별시"),
-    ("gyeonggi", 0.30, (126.40, 127.50), (36.90, 37.95), "경기도"),
-    ("jeju",     0.20, (126.15, 126.95), (33.20, 33.55), "제주특별자치도"),
+REGION_PROVINCES = [
+    ("seoul",    0.50, "서울특별시"),
+    ("gyeonggi", 0.30, "경기도"),
+    ("jeju",     0.20, "제주특별자치도"),
 ]
 
-DISTRICTS = {
-    "서울특별시":         ["강남구", "서초구", "송파구", "마포구", "성동구", "용산구", "종로구"],
-    "경기도":             ["수원시", "성남시", "고양시", "용인시", "부천시", "안산시", "안양시"],
-    "제주특별자치도":     ["제주시", "서귀포시"],
+DISTRICT_SUB_BBOXES = {
+    "서울특별시": {
+        "강남구":   [((127.034, 127.062), (37.499, 37.524))],
+        "서초구":   [((127.002, 127.026), (37.478, 37.500))],
+        "송파구":   [((127.095, 127.120), (37.500, 37.520))],
+        "마포구":   [((126.900, 126.925), (37.548, 37.568))],
+        "성동구":   [((127.030, 127.055), (37.545, 37.565))],
+        "용산구":   [((126.968, 126.995), (37.522, 37.542))],
+        "종로구":   [((126.970, 126.995), (37.568, 37.588))],
+    },
+    "경기도": {
+        "수원시":   [((127.015, 127.045), (37.255, 37.285))],
+        "성남시":   [((127.125, 127.158), (37.405, 37.435))],
+        "고양시":   [((126.775, 126.815), (37.638, 37.668))],
+        "용인시":   [((127.115, 127.150), (37.230, 37.260))],
+        "부천시":   [((126.755, 126.782), (37.488, 37.512))],
+        "안산시":   [((126.820, 126.852), (37.305, 37.335))],
+        "안양시":   [((126.948, 126.970), (37.385, 37.405))],
+    },
+    "제주특별자치도": {
+        "제주시":   [((126.498, 126.548), (33.485, 33.510))],
+        "서귀포시": [((126.555, 126.582), (33.245, 33.265))],
+    },
 }
 
 MANUFACTURERS = ["BlueOne", "ChargePoint", "EVlink", "한국전력", "ChaeVi", "SK시그넷"]
@@ -49,19 +68,24 @@ def weighted_choice(rng: random.Random, pairs: list[tuple[str, float]]) -> str:
     return pairs[-1][0]
 
 
-def region_for_index(rng: random.Random) -> tuple[str, tuple[float, float], tuple[float, float], str]:
+def region_for_index(rng: random.Random) -> tuple[str, str]:
     r = rng.random()
     acc = 0.0
-    for name, share, lon, lat, label in REGIONS:
+    for name, share, province in REGION_PROVINCES:
         acc += share
         if r < acc:
-            return name, lon, lat, label
-    return REGIONS[-1][0], REGIONS[-1][2], REGIONS[-1][3], REGIONS[-1][4]
+            return name, province
+    return REGION_PROVINCES[-1][0], REGION_PROVINCES[-1][2]
 
 
 def generate_feature(rng: random.Random, index: int, base_time: datetime) -> dict:
-    region_name, (lon_lo, lon_hi), (lat_lo, lat_hi), province = region_for_index(rng)
-    district = rng.choice(DISTRICTS[province])
+    region_name, province = region_for_index(rng)
+    district = rng.choice(list(DISTRICT_SUB_BBOXES[province].keys()))
+    sub_bbox = rng.choice(DISTRICT_SUB_BBOXES[province][district])
+    (lon_lo, lon_hi), (lat_lo, lat_hi) = sub_bbox
+
+    lon = round(rng.uniform(lon_lo, lon_hi), 6)
+    lat = round(rng.uniform(lat_lo, lat_hi), 6)
 
     mfr = rng.choice(MANUFACTURERS)
     model = rng.choice(MODELS[mfr])
@@ -77,10 +101,7 @@ def generate_feature(rng: random.Random, index: int, base_time: datetime) -> dic
         "type": "Feature",
         "geometry": {
             "type": "Point",
-            "coordinates": [
-                round(rng.uniform(lon_lo, lon_hi), 6),
-                round(rng.uniform(lat_lo, lat_hi), 6),
-            ],
+            "coordinates": [lon, lat],
         },
         "properties": {
             "charger_id": f"C{index:04d}",

@@ -8,7 +8,7 @@ type PublishingPageProps = {
 
 const PublishingPage = ({ showChart, charger_name, charger_id, mnfacr_name, model_name }: PublishingPageProps) => (
   <div>
-    <h2 style={{ color: 'white' }}>Rendering Panel</h2>
+    <h2 style={{ color: 'white' }}>Charging Station</h2>
     {showChart && (
       <>
         <p style={{ color: 'white' }}>{charger_name}</p>
