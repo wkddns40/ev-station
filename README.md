@@ -35,8 +35,6 @@ Real-time EV charging station dashboard for Korea with WebGL-accelerated geospat
 
 | | |
 |---|---|
-| ![Seoul zoom](docs/screenshots/02-seoul-zoom.png) | ![Jeju zoom](docs/screenshots/03-jeju-zoom.png) |
-| Region zoom — Seoul / 경기·인천 / Jeju | One-tap viewport presets |
 | ![Search filter pane](docs/screenshots/04-search-filter-pane.png) | ![Info pane](docs/screenshots/05-info-pane.png) |
 | Cascading filters (region → manufacturer → 계량기 → efficiency) | Stats summary (avg / min / max) + CSV download |
 
