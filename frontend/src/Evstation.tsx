@@ -20,10 +20,7 @@ import { useChargerData } from './hooks/useChargerData';
 import { useMapViewport } from './hooks/useMapViewport';
 import { useFilteredChargers } from './hooks/useFilteredChargers';
 import { convertToCSV, downloadCSV } from './lib/csv';
-import { VITE_DEMO_MODE } from './lib/env';
 import { buildPaths, getLatestDataPoint, getValidData } from './lib/geo';
-
-const DEMO_CAR_INTERVAL_MS = 2000;
 
 export default function Evstation() {
   const { state: filters, dispatch } = useFilters();
@@ -46,24 +43,7 @@ export default function Evstation() {
   const [elevationFactor, setElevationFactor] = useState<number>(0);
 
   const validData = useMemo<ChargerFeature[]>(() => getValidData(data), [data]);
-  const sortedByTime = useMemo<ChargerFeature[]>(
-    () => (VITE_DEMO_MODE
-      ? [...validData].sort((a, b) => a.properties.systemtime.localeCompare(b.properties.systemtime))
-      : []),
-    [validData],
-  );
-  const [demoCarIdx, setDemoCarIdx] = useState<number>(0);
-  useEffect(() => {
-    if (!VITE_DEMO_MODE || sortedByTime.length === 0) return;
-    const id = setInterval(() => {
-      setDemoCarIdx((i) => (i + 1) % sortedByTime.length);
-    }, DEMO_CAR_INTERVAL_MS);
-    return () => clearInterval(id);
-  }, [sortedByTime]);
-  const lastDataPoint = useMemo<ChargerFeature | null>(() => {
-    if (VITE_DEMO_MODE) return sortedByTime[demoCarIdx % Math.max(sortedByTime.length, 1)] ?? null;
-    return getLatestDataPoint(validData);
-  }, [validData, sortedByTime, demoCarIdx]);
+  const lastDataPoint = useMemo<ChargerFeature | null>(() => getLatestDataPoint(validData), [validData]);
   const paths = useMemo<[number, number][]>(() => buildPaths(validData), [validData]);
 
   const { filteredResults, selectedPropertiesData, avgEfficiency, minEfficiency, maxEfficiency } =
