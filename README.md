@@ -2,6 +2,8 @@
 
 한국 전기차 충전소를 시각화하는 WebGL 기반 지오스페이셜 대시보드.
 
+Next-generation successor: [ChargeFlow KR](https://github.com/wkddns40/chargeflow-kr)
+
 [![CI](https://github.com/wkddns40/ev-station/actions/workflows/ci.yml/badge.svg)](https://github.com/wkddns40/ev-station/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-%E2%89%A570%25-brightgreen)](frontend/vitest.config.ts)
 [![Live demo](https://img.shields.io/badge/demo-ev--station--ten.vercel.app-blue?logo=vercel)](https://ev-station-ten.vercel.app/)
