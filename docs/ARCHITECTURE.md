@@ -146,4 +146,3 @@ main.tsx
 - **No secrets in repo content.** Backend reads `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` from env; `backend/.env.example` documents the shape only.
 - **No backend in production.** Static demo eliminates the API attack surface for the live deploy.
 - **No API keys in tile URLs.** OpenFreeMap Liberty is keyless (D2 / [ADR 002](decisions/002-maplibre-over-mapbox.md)).
-- **Commit identity:** all refactor commits authored as `wkddns40 <wkddns40@gmail.com>` (D9). No `Co-Authored-By` trailers permitted (sole-ownership history; see project AGENTS.md + CLAUDE.md rules).
